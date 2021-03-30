@@ -30,7 +30,7 @@ class MyDocument extends Document<{stylesheets: Sheet[]}> {
             />
           ))}
         </Head>
-        <body>
+        <body style={{margin: 0}}>
           <Main />
           <NextScript />
         </body>
