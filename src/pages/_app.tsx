@@ -9,7 +9,7 @@ export default class MyApp extends App {
     const {Component, pageProps} = this.props;
     return (
       <StyletronProvider value={styletron}>
-        <BaseProvider theme={DarkTheme}>
+        <BaseProvider theme={LightTheme}>
           <Component {...pageProps} />
         </BaseProvider>
       </StyletronProvider>
