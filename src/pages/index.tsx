@@ -1,24 +1,24 @@
 import * as React from 'react';
 import { AppNavBar } from 'baseui/app-nav-bar';
-import { Card, StyledBody, StyledAction } from "baseui/card";
+import { Card, StyledBody } from "baseui/card";
 import {
   Paragraph1
 } from 'baseui/typography';
-import { Button } from "baseui/button";
 import { Grid, Cell, BEHAVIOR } from 'baseui/layout-grid';
 import StackGrid from "react-stack-grid";
 import sizeMe, { SizeMeProps } from 'react-sizeme'
+import Link from 'next/link'
 
 import * as Web3 from 'web3'
 import { OpenSeaPort, Network } from 'opensea-js'
 import { OpenSeaAsset } from 'opensea-js/lib/types';
-import Header from '../components/header'
+import Page from '../containers/page';
 
 interface IndexProps extends SizeMeProps {
   assets: OpenSeaAsset[]
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
 
   const provider = new Web3.default.providers.HttpProvider('https://mainnet.infura.io')
 
@@ -46,60 +46,49 @@ export async function getServerSideProps() {
 export const sum = (a: number, b: number) => a + b;
 
 function Index ({assets, size}: IndexProps) {
-
-  const [mainItems, setMainItems] = React.useState([
-    { label: "Gallery", active: true },
-    { label: "About" }
-  ]);
-
   return (
     <div>
-        <Grid behavior={BEHAVIOR.fixed}>
-          <Cell span={12}>
-          <AppNavBar
-            title={process.env.NEXT_PUBLIC_TITLE}
-            mainItems={mainItems}
-          />
-          <div style={{marginTop: 50}}>
-            <Header/>
-          </div>
+        <Page>
           <Paragraph1 marginTop="scale1000">
           Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
           </Paragraph1>
-            {/* <HeaderImage /> */}
-            <StackGrid
-              style={{marginTop: 50}}
-              columnWidth={size.width <= 768 ? '50%' : '33.33%'}
-              gutterWidth={50}
-              gutterHeight={50}
-              appearDelay={500}
-            >
-              {assets.map(asset => {
-              return(
-                <div key={asset.tokenId}>
-                  <Card 
-                    overrides={{HeaderImage: {style: {width: '95%', padding: '2.5%'}}}}
-                    headerImage={asset.imageUrl}
-                    title={asset.name}>
-                    <StyledBody>
-                      {asset.description}
-                    </StyledBody>
-                    {/* <StyledAction>
-                      <Button
-                        overrides={{
-                          BaseButton: { style: { width: "100%" } }
-                        }}
-                      >
-                        Button Label
-                      </Button>
-                    </StyledAction> */}
-                  </Card>
-                </div>
-              )
-            })}
-            </StackGrid>
-          </Cell>
-        </Grid>
+          {/* <HeaderImage /> */}
+          <StackGrid
+            style={{marginTop: 50}}
+            columnWidth={size.width <= 768 ? '50%' : '33.33%'}
+            gutterWidth={50}
+            gutterHeight={50}
+            appearDelay={500}
+          >
+            {assets.map(asset => {
+            return(
+              <div key={asset.tokenId}>
+                <Link href={`/gallery/${asset.tokenAddress}/${asset.tokenId}`}>
+                  <a>
+                    <Card 
+                      overrides={{HeaderImage: {style: {width: '95%', padding: '2.5%'}}}}
+                      headerImage={asset.imageUrl}
+                      title={asset.name}>
+                      <StyledBody>
+                        {asset.description}
+                      </StyledBody>
+                      {/* <StyledAction>
+                        <Button
+                          overrides={{
+                            BaseButton: { style: { width: "100%" } }
+                          }}
+                        >
+                          Button Label
+                        </Button>
+                      </StyledAction> */}
+                    </Card>
+                  </a>
+                </Link>
+              </div>
+            )
+          })}
+          </StackGrid>
+        </Page>
     </div>
   );
 };
