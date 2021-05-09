@@ -9021,6 +9021,13 @@ react-sizeme@^3.0.1:
     shallowequal "^1.1.0"
     throttle-debounce "^3.0.1"
 
+react-social-icons@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/react-social-icons/-/react-social-icons-5.3.0.tgz#37b87f126cd5d67053b62870c0a17d1351c6cc81"
+  integrity sha512-L0ghMfES//4L/gNCtRCWeXSwQ9tx0ajnQLw14ImToOP6c0hf6LVN3QHa4vwBCD9YcOkSec96hzeyFz8JihCAQQ==
+  dependencies:
+    prop-types "^15.7.2"
+
 react-stack-grid@^0.7.1:
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/react-stack-grid/-/react-stack-grid-0.7.1.tgz#cbf7353ce6c2acf712b827c36b0be234af84bee9"

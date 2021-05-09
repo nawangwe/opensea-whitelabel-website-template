@@ -13,6 +13,7 @@ import * as Web3 from 'web3'
 import { OpenSeaPort, Network } from 'opensea-js'
 import { OpenSeaAsset } from 'opensea-js/lib/types';
 import Page from '../containers/page';
+import Footer from '../components/footer';
 
 interface IndexProps extends SizeMeProps {
   assets: OpenSeaAsset[]
@@ -64,7 +65,6 @@ function Index ({assets, size}: IndexProps) {
             return(
               <div key={asset.tokenId}>
                 <Link href={`/gallery/${asset.tokenAddress}/${asset.tokenId}`}>
-                  <a>
                     <Card 
                       overrides={{HeaderImage: {style: {width: '95%', padding: '2.5%'}}}}
                       headerImage={asset.imageUrl}
@@ -82,7 +82,6 @@ function Index ({assets, size}: IndexProps) {
                         </Button>
                       </StyledAction> */}
                     </Card>
-                  </a>
                 </Link>
               </div>
             )
