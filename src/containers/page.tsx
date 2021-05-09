@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useRouter } from "next/router";
 import { AppNavBar } from 'baseui/app-nav-bar';
 import { Grid, Cell, BEHAVIOR } from 'baseui/layout-grid';
 import { Block } from 'baseui/block';
@@ -7,16 +8,22 @@ import Footer from '../components/footer';
 
 interface PageProps {
   children?: React.ReactNode
+  pageRoute: String
 }
 
-function Page ({ children }: PageProps) {
+function Page ({ children, pageRoute }: PageProps) {
+
+  const router = useRouter()
 
   const [mainItems, setMainItems] = React.useState([
-    { label: "Gallery", active: true },
-    { label: "About" }
+    { label: "Home", active: pageRoute.toLowerCase() === 'home'},
+    { label: "Gallery", active: pageRoute.toLowerCase() === 'gallery'},
+    { label: "About", active: pageRoute.toLowerCase() === 'about' }
   ]);
 
   const [css, theme] = useStyletron();
+
+  console.log(router.query.id)
 
   return (
     <div className={css({
@@ -25,6 +32,7 @@ function Page ({ children }: PageProps) {
         <AppNavBar
             title={process.env.NEXT_PUBLIC_TITLE}
             mainItems={mainItems}
+            onMainItemSelect={(item) => router.push(item.label.toLowerCase() === 'home' ? "/" : `/${item.label.toLowerCase()}`)}
           />
         <Grid behavior={BEHAVIOR.fixed}>
           <Cell span={12}>

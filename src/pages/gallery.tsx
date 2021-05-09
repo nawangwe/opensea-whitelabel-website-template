@@ -1,9 +1,6 @@
 import * as React from 'react';
-import {useStyletron} from 'baseui';
 import { Card, StyledBody } from "baseui/card";
-import { Button } from "baseui/button";
 import {
-  HeadingSmall,
   Paragraph1
 } from 'baseui/typography';
 import StackGrid from "react-stack-grid";
@@ -15,7 +12,7 @@ import { OpenSeaPort, Network } from 'opensea-js'
 import { OpenSeaAsset } from 'opensea-js/lib/types';
 import Page from '../containers/page';
 
-interface IndexProps extends SizeMeProps {
+interface GalleryProps extends SizeMeProps {
   assets: OpenSeaAsset[]
 }
 
@@ -32,8 +29,7 @@ export async function getStaticProps() {
    */
   const response: { assets: OpenSeaAsset[]; estimatedCount: number; } = await seaport.api.getAssets({
     owner: process.env.OPEN_SEA_WALLET_ADDRESS,
-    collection: process.env.OPEN_SEA_COLLECTION_SLUG,
-    limit: 3
+    collection: process.env.OPEN_SEA_COLLECTION_SLUG
   } as any)
 
   /**
@@ -47,18 +43,13 @@ export async function getStaticProps() {
 
 export const sum = (a: number, b: number) => a + b;
 
-function Index ({assets, size}: IndexProps) {
-
-  const [css, theme] = useStyletron();
-
+function Gallery ({assets, size}: GalleryProps) {
   return (
     <div>
-        <Page pageRoute="home">
+        <Page pageRoute="gallery">
           <Paragraph1 marginTop="scale1000">
           Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
           </Paragraph1>
-
-          <HeadingSmall>Gallery</HeadingSmall>
           {/* <HeaderImage /> */}
           <StackGrid
             style={{marginTop: 50}}
@@ -78,25 +69,23 @@ function Index ({assets, size}: IndexProps) {
                       <StyledBody>
                         {asset.description}
                       </StyledBody>
+                      {/* <StyledAction>
+                        <Button
+                          overrides={{
+                            BaseButton: { style: { width: "100%" } }
+                          }}
+                        >
+                          Button Label
+                        </Button>
+                      </StyledAction> */}
                     </Card>
                 </Link>
               </div>
             )
           })}
           </StackGrid>
-          <div className={css({
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: '30px'
-          })}>
-            <Link href="/gallery">
-              <Button>
-                See more
-              </Button>
-            </Link>
-          </div>
         </Page>
     </div>
   );
 };
-export default sizeMe()(Index);
+export default sizeMe()(Gallery);

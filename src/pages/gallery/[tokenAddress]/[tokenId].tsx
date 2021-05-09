@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { AppNavBar } from 'baseui/app-nav-bar';
 import { Card, StyledBody } from "baseui/card";
 import { Grid, Cell, BEHAVIOR } from 'baseui/layout-grid';
 import sizeMe, { SizeMeProps } from 'react-sizeme'
@@ -49,7 +48,7 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
 
   return (
     <div>
-      <Page>
+      <Page pageRoute="gallery">
         <Grid behavior={BEHAVIOR.fixed}>
           <Cell span={6}>
             <Card 

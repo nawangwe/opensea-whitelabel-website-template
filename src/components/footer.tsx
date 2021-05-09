@@ -1,6 +1,6 @@
 import React from 'react';
 import {useStyletron} from 'baseui';
-import { ALIGNMENT, BEHAVIOR, Cell, Grid } from 'baseui/layout-grid';
+import { BEHAVIOR, Cell, Grid } from 'baseui/layout-grid';
 
 import { SocialIcon } from 'react-social-icons';
 import { LabelSmall } from 'baseui/typography';
