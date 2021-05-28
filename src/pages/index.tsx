@@ -33,7 +33,7 @@ export async function getStaticProps() {
   const response: { assets: OpenSeaAsset[]; estimatedCount: number; } = await seaport.api.getAssets({
     owner: process.env.OPEN_SEA_WALLET_ADDRESS,
     collection: process.env.OPEN_SEA_COLLECTION_SLUG,
-    limit: 3
+    limit: 4
   } as any)
 
   /**
@@ -49,13 +49,15 @@ export const sum = (a: number, b: number) => a + b;
 
 function Index ({assets, size}: IndexProps) {
 
-  const [css, theme] = useStyletron();
+  const [css, theme] = useStyletron()
 
   return (
     <div>
         <Page pageRoute="home">
           <Paragraph1 marginTop="scale1000">
-          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+            I've always had a keen interest in Photography. This interest peaked in the early 2010's, when I got myself a trusty CanonG7x and guide to photography by the National Geographic channel.
+            I began exploring how I can use the light around me to create art, hence putting my focus away from live subjects. The hobby slowly faded with time, but every now and then, I take a good picture that I believe is worth something.
+            This website hosts my best pictures taken within the last 10 years of my life in and around Malaysia, it also serves as an open source OpenSea website template I wish to share with the world. I hope you find it useful in the pursue of your endeavors.
           </Paragraph1>
 
           <HeadingSmall>Gallery</HeadingSmall>
@@ -67,17 +69,14 @@ function Index ({assets, size}: IndexProps) {
             gutterHeight={50}
             appearDelay={500}
           >
-            {assets.map(asset => {
+            {assets.slice(0, size.width >= 768 ? 3 : 4).map(asset => {
             return(
               <div key={asset.tokenId}>
                 <Link href={`/gallery/${asset.tokenAddress}/${asset.tokenId}`}>
                     <Card 
                       overrides={{HeaderImage: {style: {width: '95%', padding: '2.5%'}}}}
-                      headerImage={asset.imageUrl}
+                      headerImage={asset.imageUrl.replace('s250', 's600')}
                       title={asset.name}>
-                      <StyledBody>
-                        {asset.description}
-                      </StyledBody>
                     </Card>
                 </Link>
               </div>
