@@ -50,7 +50,7 @@ function Gallery ({assets, size}: GalleryProps) {
         <Page pageRoute="gallery">
           {/* <HeaderImage /> */}
           <StackGrid
-            style={{marginTop: 50}}
+            style={{marginTop: 50, zIndex: 0}}
             columnWidth={size.width <= 768 ? '50%' : '33.33%'}
             gutterWidth={50}
             gutterHeight={50}
