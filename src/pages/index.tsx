@@ -63,7 +63,7 @@ function Index ({assets, size}: IndexProps) {
           <HeadingSmall>Gallery</HeadingSmall>
           {/* <HeaderImage /> */}
           <StackGrid
-            style={{marginTop: 50}}
+            style={{marginTop: 50, zIndex: 0}}
             columnWidth={size.width <= 768 ? '50%' : '33.33%'}
             gutterWidth={50}
             gutterHeight={50}
