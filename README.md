@@ -11,6 +11,8 @@ The main goal of this project is to create a template based on baseui that any a
 - OpenSeaJS
 - Nextjs
 - Base Web
+- web3
+- web3modal
 - Styletron
 - Jest
 - Eslint
