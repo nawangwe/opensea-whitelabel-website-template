@@ -1,8 +1,5 @@
 import * as React from 'react';
-import { Card, StyledAction, StyledBody } from "baseui/card";
-import {
-  Paragraph1
-} from 'baseui/typography';
+import { Card } from "baseui/card";
 import StackGrid from "react-stack-grid";
 import sizeMe, { SizeMeProps } from 'react-sizeme'
 import Link from 'next/link'
@@ -11,7 +8,6 @@ import * as Web3 from 'web3'
 import { OpenSeaPort, Network } from 'opensea-js'
 import { OpenSeaAsset } from 'opensea-js/lib/types';
 import Page from '../containers/page';
-import { Button } from 'baseui/button';
 
 interface GalleryProps extends SizeMeProps {
   assets: OpenSeaAsset[]

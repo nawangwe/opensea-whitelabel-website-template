@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useStyletron} from 'baseui';
-import { Card, StyledBody } from "baseui/card";
+import { Card } from "baseui/card";
 import { Button } from "baseui/button";
 import {
   HeadingSmall,
@@ -55,10 +55,8 @@ function Index ({assets, size}: IndexProps) {
     <div>
         <Page pageRoute="home">
           <Paragraph1 marginTop="scale1000">
-            I've always had a keen interest in Photography. This interest peaked in the early 2010's, when I got myself a trusty CanonG7x and guide to photography by the National Geographic channel.
-            I began exploring how I can use the light around me to create art, hence putting my focus away from live subjects. The hobby slowly faded with time, but every now and then, I take a good picture that I believe is worth something.
-            This website hosts my best pictures taken within the last 10 years of my life in and around Malaysia, it also serves as an open source OpenSea website template I wish to share with the world. I hope you find it useful in the pursue of your endeavors.
-          </Paragraph1>
+            {process.env.NEXT_PUBLIC_INTRODUCTORY_TEXT}
+            </Paragraph1>
 
           <HeadingSmall>Gallery</HeadingSmall>
           {/* <HeaderImage /> */}
