@@ -31,7 +31,7 @@ class MyDocument extends Document<{stylesheets: Sheet[]}> {
           ))}
         </Head>
         <body style={{margin: 0}}>
-          <script src="noflasj.js" />
+          <script src="noflash.js" />
           <Main />
           <NextScript />
         </body>

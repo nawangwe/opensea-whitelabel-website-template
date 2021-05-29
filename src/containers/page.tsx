@@ -9,6 +9,12 @@ import { FaLightbulb } from 'react-icons/fa';
 import useDarkMode from 'use-dark-mode'
 import { LabelLarge } from 'baseui/typography';
 
+import Web3 from "web3";
+import Web3Modal from "web3modal";
+import WalletConnectProvider from "@walletconnect/web3-provider";
+import { getChainData } from '../helpers/utilities';
+import { Button } from 'baseui/button';
+
 interface PageProps {
   children?: React.ReactNode
   pageRoute: String
@@ -16,18 +22,107 @@ interface PageProps {
 
 function Page ({ children, pageRoute }: PageProps) {
 
+  var web3Modal = React.useRef(null);
+
   const router = useRouter()
-
   const [css, theme] = useStyletron();
-
+  const [address, setAddress] = React.useState("")
+  const [web3, setWeb3] = React.useState(null)
+  const [provider, setProvider] = React.useState(null)
+  const [connected, setConnected] = React.useState(false)
+  const [networkId, setNetworkId] = React.useState(1)
+  const [chainId, setChainId] = React.useState(1)
   const [mainItems, setMainItems] = React.useState([
     { label: "Home", active: pageRoute.toLowerCase() === 'home'},
     { label: "Gallery", active: pageRoute.toLowerCase() === 'gallery'},
     { label: "About", active: pageRoute.toLowerCase() === 'about' },
-    { label: "Toggle Dark Mode"}
+    { label: "Connect Wallet" },
+    { label: "Toggle Dark Mode" }
   ]);
-
   const darkMode = useDarkMode()
+  
+  React.useEffect(() => {
+    web3Modal.current = new Web3Modal({
+      network: getNetwork(),
+      cacheProvider: true,
+      providerOptions: getProviderOptions()
+    });
+    if (web3Modal.current.cachedProvider) {
+      onConnect();
+    }
+  }, []);
+
+  const initWeb3 = (provider: any ) => {
+    const web3: any = new Web3(provider)
+    return web3
+  }
+
+  const onConnect = async () => {
+    const provider = await web3Modal.current.connect();
+
+    await subscribeProvider(provider);
+
+    const web3: any = initWeb3(provider);
+    const accounts = await web3.eth.getAccounts();
+    const address = accounts[0];
+    const networkId = await web3.eth.net.getId();
+    const chainId = await web3.eth.getChainId();
+
+    await setWeb3(web3)
+    await setProvider(provider)
+    await setConnected(true)
+    await setAddress(address)
+    await setChainId(chainId)
+    await setNetworkId(networkId)
+  }
+
+  const subscribeProvider = async (provider: any) => {
+    if (!provider.on) {
+      return;
+    }
+    provider.on("close", () => resetApp());
+    provider.on("accountsChanged", async (accounts: string[]) => {
+      await setAddress(accounts[0])
+    });
+    provider.on("chainChanged", async (chainId: number) => {
+      const networkId = await web3.eth.net.getId();
+      await setChainId(chainId)
+      await setNetworkId(networkId)
+    });
+
+    provider.on("networkChanged", async (networkId: number) => {
+      const chainId = await web3.eth.chainId();
+      await setChainId(chainId)
+      await setNetworkId(networkId)
+    });
+  };
+
+  const getNetwork = () => getChainData(chainId).network;
+
+  const getProviderOptions = () => {
+    const providerOptions = {
+      walletconnect: {
+        package: WalletConnectProvider,
+        options: {
+          infuraId: process.env.NEXT_PUBLIC_REACT_APP_INFURA_ID
+        }
+      }
+    };
+    return providerOptions;
+  };
+
+  const resetApp = async () => {
+    if (web3 && web3.currentProvider && web3.currentProvider.close) {
+      await web3.currentProvider.close();
+    }
+    await web3Modal.current.clearCachedProvider();
+    await setWeb3(null)
+    await setProvider(null)
+    await setConnected(false)
+    await setAddress("")
+    await setChainId(1)
+    await setNetworkId(1)
+  };
 
   return (
     <div className={css({
@@ -40,11 +135,19 @@ function Page ({ children, pageRoute }: PageProps) {
             mapItemToNode={(item) => {
               if(item.label == "Toggle Dark Mode") {
                 return <FaLightbulb style={{width: 30, height: 30}} color={theme.colors.contentPrimary}/>
-              } else return <LabelLarge>{item.label}</LabelLarge>
+              } else if(item.label == "Connect Wallet") {
+                if(connected)
+                  return <Button size='compact' shape='pill' kind='secondary'>{address.substring(0, 10) + '...'}</Button>
+                else
+                  return <Button size='compact' shape='pill'>Connect Wallet</Button>
+              }
+              else return <LabelLarge>{item.label}</LabelLarge>
             }}
             onMainItemSelect={(item) => {
               if (item.label == "Toggle Dark Mode"){
                 darkMode.toggle()
+              } else if (item.label == "Connect Wallet"){
+                if(!connected) onConnect()
               } else router.push(item.label.toLowerCase() === 'home' ? "/" : `/${item.label.toLowerCase()}`)
             }}
           />
