@@ -29,6 +29,8 @@ class MyDocument extends Document<{stylesheets: Sheet[]}> {
               key={i}
             />
           ))}
+          <meta charSet='utf-8' />
+          <script type="text/javascript" dangerouslySetInnerHTML={{ __html: process.env.noflash}} />
         </Head>
         <body style={{margin: 0}}>
           <Main />

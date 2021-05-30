@@ -1,8 +1,9 @@
 import React from 'react';
 import {useStyletron} from 'baseui';
 import { BEHAVIOR, Cell, Grid } from 'baseui/layout-grid';
-
-import { SocialIcon } from 'react-social-icons';
+import { FaTwitter } from 'react-icons/fa';
+import { FaInstagram } from 'react-icons/fa';
+import { FaGithub } from 'react-icons/fa';
 import { LabelSmall } from 'baseui/typography';
 
 function Footer() {
@@ -19,15 +20,15 @@ function Footer() {
             <Cell span={6}>
                 <LabelSmall className={css({ color: theme.colors.contentPrimary})}>© 2021 Maxim Nawangwe</LabelSmall>
                 <div style={{marginTop: 10}}>
-                <SocialIcon style={{width: 30, height: 30}} network='twitter' bgColor={theme.colors.contentPrimary} fgColor={theme.colors.primaryB}/>
-                <SocialIcon style={{width: 30, height: 30, marginLeft: 10}} network='instagram' bgColor={theme.colors.contentPrimary} fgColor={theme.colors.primaryB}/>
+                <FaTwitter style={{width: 30, height: 30}} color={theme.colors.contentPrimary}/>
+                <FaInstagram style={{width: 30, height: 30, marginLeft: 10}} color={theme.colors.contentPrimary}/>
                 </div>
             </Cell>
             <Cell span={6}>
                 <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end'}}>
                     <LabelSmall className={css({ color: theme.colors.contentPrimary})}>Created with OpenSea whitelable template</LabelSmall>
                     <div style={{marginTop: 10}}/>
-                    <SocialIcon style={{width: 30, height: 30, float: 'right'}} network='github' bgColor={theme.colors.contentPrimary} fgColor={theme.colors.primaryB}/>
+                    <FaGithub style={{width: 30, height: 30, float: 'right'}} color={theme.colors.contentPrimary}/>
                 </div>
             </Cell>
         </Grid>

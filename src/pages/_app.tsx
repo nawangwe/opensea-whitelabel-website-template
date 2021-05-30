@@ -1,18 +1,20 @@
 import React from 'react';
-import App from 'next/app';
 import {Provider as StyletronProvider} from 'styletron-react';
-import {LightTheme, DarkTheme, BaseProvider} from 'baseui';
+import useDarkMode from 'use-dark-mode'
+import {BaseProvider, DarkTheme} from 'baseui';
 import {styletron} from '../styletron';
+import DefaultTheme from '../themes/default'
 
-export default class MyApp extends App {
-  render() {
-    const {Component, pageProps} = this.props;
+function MyApp({ Component, pageProps }) {
+    const darkMode = useDarkMode()
+    const theme = darkMode.value ? DarkTheme : DefaultTheme
     return (
       <StyletronProvider value={styletron}>
-        <BaseProvider theme={LightTheme}>
+        <BaseProvider theme={theme}>
           <Component {...pageProps} />
         </BaseProvider>
       </StyletronProvider>
     );
-  }
 }
+
+export default MyApp
