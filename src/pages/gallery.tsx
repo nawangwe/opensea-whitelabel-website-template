@@ -1,16 +1,15 @@
 import * as React from 'react';
-import { Card } from "baseui/card";
 import StackGrid from "react-stack-grid";
 import sizeMe, { SizeMeProps } from 'react-sizeme'
-import Link from 'next/link'
 
 import * as Web3 from 'web3'
 import { OpenSeaPort, Network } from 'opensea-js'
-import { OpenSeaAsset } from 'opensea-js/lib/types';
+import { Order } from 'opensea-js/lib/types';
 import Page from '../containers/page';
+import NFTCard from '../components/nftcard';
 
 interface GalleryProps extends SizeMeProps {
-  assets: OpenSeaAsset[]
+  orders: Order[]
 }
 
 export async function getStaticProps() {
@@ -24,23 +23,22 @@ export async function getStaticProps() {
   /**
    * cast OpenSeaAssetQuery to any since collection is not included in the api library
    */
-  const response: { assets: OpenSeaAsset[]; estimatedCount: number; } = await seaport.api.getAssets({
-    owner: process.env.OPEN_SEA_WALLET_ADDRESS,
-    collection: process.env.OPEN_SEA_COLLECTION_SLUG
-  } as any)
+   const response: { orders: Order[], count: number; } = await seaport.api.getOrders({
+    owner: process.env.OPEN_SEA_WALLET_ADDRESS
+  })
 
   /**
    * Hack needed to avoid JSON-Serialization validation error from Next.js https://github.com/zeit/next.js/
    * solution from https://github.com/vercel/next.js/discussions/11209#discussioncomment-38480
    */
-  const assets = JSON.parse(JSON.stringify(response)).assets
+  const orders = JSON.parse(JSON.stringify(response)).orders
 
-  return { props: { assets: assets } }
+  return { props: { orders: orders } }
 }
 
 export const sum = (a: number, b: number) => a + b;
 
-function Gallery ({assets, size}: GalleryProps) {
+function Gallery ({orders, size}: GalleryProps) {
   return (
     <div>
         <Page pageRoute="gallery">
@@ -52,16 +50,10 @@ function Gallery ({assets, size}: GalleryProps) {
             gutterHeight={50}
             appearDelay={500}
           >
-            {assets.map(asset => {
+            {orders.map(order => {
             return(
-              <div key={asset.tokenId}>
-                <Link href={`/gallery/${asset.tokenAddress}/${asset.tokenId}`}>
-                    <Card 
-                      overrides={{HeaderImage: {style: {width: '95%', padding: '2.5%'}}}}
-                      headerImage={asset.imageUrl.replace('s250', 's600')}
-                      title={asset.name}>
-                    </Card>
-                </Link>
+              <div key={order.asset.tokenId}>
+                <NFTCard order={order}/>
               </div>
             )
           })}

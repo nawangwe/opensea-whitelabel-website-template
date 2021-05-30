@@ -1,4 +1,5 @@
-// next.config.js
+var fs = require('fs');
+
 module.exports = {
     images: {
       domains: [
@@ -11,4 +12,7 @@ module.exports = {
         'lh6.googleusercontent.com',
       ],
     },
+    env: {
+      noflash: fs.readFileSync('./noflash.js').toString()
+    }
   }

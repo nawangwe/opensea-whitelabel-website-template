@@ -44,12 +44,6 @@ export async function getServerSideProps({ params }) {
 export const sum = (a: number, b: number) => a + b;
 
 function GalleryItemDetails({ asset, size }: GalleryItemDetailsProps) {
-
-  const [mainItems, setMainItems] = React.useState([
-    { label: "Gallery", active: true },
-    { label: "About" }
-  ]);
-
   const [css] = useStyletron();
 
   return (
