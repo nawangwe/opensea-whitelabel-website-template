@@ -14,7 +14,6 @@ import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { getChainData } from '../helpers/utilities';
 import Context from '../context';
-import { profile } from 'console';
 
 interface PageProps {
   children?: React.ReactNode
