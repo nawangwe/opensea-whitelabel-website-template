@@ -1,10 +1,8 @@
 import * as React from 'react';
 import {useStyletron} from 'baseui';
-import { Card } from "baseui/card";
 import { Button } from "baseui/button";
 import {
   HeadingSmall,
-  LabelLarge,
   Paragraph1
 } from 'baseui/typography';
 import StackGrid from "react-stack-grid";
@@ -16,8 +14,6 @@ import * as Web3 from 'web3'
 import { OpenSeaPort, Network } from 'opensea-js'
 import { Order } from 'opensea-js/lib/types';
 import Page from '../containers/page';
-import { getPriceLabel } from '../helpers/utilities';
-import { Cell, Grid } from 'baseui/layout-grid';
 import NFTCard from '../components/nftcard';
 
 interface IndexProps extends SizeMeProps {
@@ -36,7 +32,8 @@ export async function getStaticProps() {
    * cast OpenSeaAssetQuery to any since collection is not included in the api library
    */
   const response: { orders: Order[], count: number; } = await seaport.api.getOrders({
-    owner: process.env.OPEN_SEA_WALLET_ADDRESS
+    owner: process.env.OPEN_SEA_WALLET_ADDRESS,
+    limit: 3
   })
 
   /**
@@ -47,8 +44,6 @@ export async function getStaticProps() {
 
   return { props: { orders: orders } }
 }
-
-export const sum = (a: number, b: number) => a + b;
 
 function Index ({orders, size}: IndexProps) {
 
@@ -65,12 +60,12 @@ function Index ({orders, size}: IndexProps) {
           {/* <HeaderImage /> */}
           <StackGrid
             style={{marginTop: 50, zIndex: 0}}
-            columnWidth={size.width <= 768 ? '50%' : '33.33%'}
+            columnWidth={size.width <= 768 ? '100%' : '33.33%'}
             gutterWidth={50}
             gutterHeight={50}
             appearDelay={500}
           >
-            {orders.slice(0, size.width >= 768 ? 3 : 4).map(order => {
+            {orders.map(order => {
             return(
               <div key={order.asset.tokenId}>
                 <NFTCard order={order}/>
