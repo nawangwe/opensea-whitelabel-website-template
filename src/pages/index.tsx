@@ -20,7 +20,7 @@ interface IndexProps extends SizeMeProps {
   orders: Order[]
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
 
   const provider = new Web3.default.providers.HttpProvider('https://mainnet.infura.io')
 
@@ -28,21 +28,14 @@ export async function getStaticProps() {
     networkName: Network.Main
   })
 
-  /**
-   * cast OpenSeaAssetQuery to any since collection is not included in the api library
-   */
   const response: { orders: Order[], count: number; } = await seaport.api.getOrders({
     owner: process.env.OPEN_SEA_WALLET_ADDRESS,
-    limit: 3
-  })
+    include_invalid: false
+  } as any)
 
-  /**
-   * Hack needed to avoid JSON-Serialization validation error from Next.js https://github.com/zeit/next.js/
-   * solution from https://github.com/vercel/next.js/discussions/11209#discussioncomment-38480
-   */
   const orders = JSON.parse(JSON.stringify(response)).orders
 
-  return { props: { orders: orders } }
+  return { props: { orders: orders.filter((v,i,a)=>a.findIndex(t=>(t.asset.tokenId === v.asset.tokenId))===i) }} // getting rid of duplicate entires in the order book
 }
 
 function Index ({orders, size}: IndexProps) {
@@ -63,11 +56,11 @@ function Index ({orders, size}: IndexProps) {
             columnWidth={size.width <= 768 ? '100%' : '33.33%'}
             gutterWidth={50}
             gutterHeight={50}
-            appearDelay={500}
+            monitorImagesLoaded={true}
           >
-            {orders.map(order => {
+            {orders.slice(0,3).map(order => {
             return(
-              <div key={order.asset.tokenId}>
+              <div key={order.createdTime.toString()}>
                 <NFTCard order={order}/>
               </div>
             )
