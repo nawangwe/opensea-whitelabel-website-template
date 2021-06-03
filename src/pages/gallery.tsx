@@ -20,17 +20,10 @@ export async function getStaticProps() {
     networkName: Network.Main
   })
 
-  /**
-   * cast OpenSeaAssetQuery to any since collection is not included in the api library
-   */
    const response: { orders: Order[], count: number; } = await seaport.api.getOrders({
     owner: process.env.OPEN_SEA_WALLET_ADDRESS
   })
 
-  /**
-   * Hack needed to avoid JSON-Serialization validation error from Next.js https://github.com/zeit/next.js/
-   * solution from https://github.com/vercel/next.js/discussions/11209#discussioncomment-38480
-   */
   const orders = JSON.parse(JSON.stringify(response)).orders
 
   return { props: { orders: orders } }
@@ -45,7 +38,7 @@ function Gallery ({orders, size}: GalleryProps) {
           {/* <HeaderImage /> */}
           <StackGrid
             style={{marginTop: 50, zIndex: 0}}
-            columnWidth={size.width <= 768 ? '50%' : '33.33%'}
+            columnWidth={size.width <= 768 ? '100%' : '33.33%'}
             gutterWidth={50}
             gutterHeight={50}
             appearDelay={500}

@@ -3,44 +3,45 @@ import { useRouter } from "next/router";
 import { AppNavBar } from 'baseui/app-nav-bar';
 import { Grid, Cell, BEHAVIOR } from 'baseui/layout-grid';
 import { Block } from 'baseui/block';
-import {useStyletron} from 'baseui';
+import { useStyletron } from 'baseui';
+import { Button } from 'baseui/button';
 import Footer from '../components/footer';
 import { FaLightbulb } from 'react-icons/fa';
 import useDarkMode from 'use-dark-mode'
 import { LabelLarge } from 'baseui/typography';
-
 import Web3 from "web3";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { getChainData } from '../helpers/utilities';
-import { Button } from 'baseui/button';
+import Context from '../context';
 
 interface PageProps {
   children?: React.ReactNode
   pageRoute: String
 }
 
-function Page ({ children, pageRoute }: PageProps) {
+function Page({ children, pageRoute }: PageProps) {
 
   var web3Modal = React.useRef(null);
 
   const router = useRouter()
   const [css, theme] = useStyletron();
-  const [address, setAddress] = React.useState("")
-  const [web3, setWeb3] = React.useState(null)
-  const [provider, setProvider] = React.useState(null)
-  const [connected, setConnected] = React.useState(false)
+  const { addressValue, providerValue, connectedValue, web3Value } = React.useContext(Context)
+  const [address, setAddress] = addressValue
+  const [web3, setWeb3] = web3Value
+  const [provider, setProvider] = providerValue
+  const [connected, setConnected] = connectedValue
   const [networkId, setNetworkId] = React.useState(1)
   const [chainId, setChainId] = React.useState(1)
   const [mainItems, setMainItems] = React.useState([
-    { label: "Home", active: pageRoute.toLowerCase() === 'home'},
-    { label: "Gallery", active: pageRoute.toLowerCase() === 'gallery'},
+    { label: "Home", active: pageRoute.toLowerCase() === 'home' },
+    { label: "Gallery", active: pageRoute.toLowerCase() === 'gallery' },
     { label: "About", active: pageRoute.toLowerCase() === 'about' },
     { label: "Connect Wallet" },
     { label: "Toggle Dark Mode" }
   ]);
   const darkMode = useDarkMode()
-  
+
   React.useEffect(() => {
     web3Modal.current = new Web3Modal({
       network: getNetwork(),
@@ -52,7 +53,7 @@ function Page ({ children, pageRoute }: PageProps) {
     }
   }, []);
 
-  const initWeb3 = (provider: any ) => {
+  const initWeb3 = (provider: any) => {
     const web3: any = new Web3(provider)
     return web3
   }
@@ -125,43 +126,43 @@ function Page ({ children, pageRoute }: PageProps) {
   };
 
   return (
-    <div className={css({
-      backgroundColor: theme.colors.primaryB,
-      minHeight: '100vh'
+      <div className={css({
+        backgroundColor: theme.colors.primaryB,
+        minHeight: '100vh'
       })}>
         <AppNavBar
-            title={process.env.NEXT_PUBLIC_TITLE}
-            mainItems={mainItems}
-            mapItemToNode={(item) => {
-              if(item.label == "Toggle Dark Mode") {
-                return <FaLightbulb style={{width: 30, height: 30}} color={theme.colors.contentPrimary}/>
-              } else if(item.label == "Connect Wallet") {
-                if(connected)
-                  return <Button size='compact' shape='pill' kind='secondary'>{address.substring(0, 10) + '...'}</Button>
-                else
-                  return <Button size='compact' shape='pill'>Connect Wallet</Button>
-              }
-              else return <LabelLarge>{item.label}</LabelLarge>
-            }}
-            onMainItemSelect={(item) => {
-              if (item.label == "Toggle Dark Mode"){
-                darkMode.toggle()
-              } else if (item.label == "Connect Wallet"){
-                if(!connected) onConnect()
-              } else router.push(item.label.toLowerCase() === 'home' ? "/" : `/${item.label.toLowerCase()}`)
-            }}
-          />
+          title={process.env.NEXT_PUBLIC_TITLE}
+          mainItems={mainItems}
+          mapItemToNode={(item) => {
+            if (item.label == "Toggle Dark Mode") {
+              return <FaLightbulb style={{ width: 30, height: 30 }} color={theme.colors.contentPrimary} />
+            } else if (item.label == "Connect Wallet") {
+              if (connected)
+                return <Button size='compact' shape='pill' >{address.substring(0, 10) + '...'}</Button>
+              else
+                return <Button size='compact' shape='pill' kind='secondary'>Connect Wallet</Button>
+            }
+            else return <LabelLarge>{item.label}</LabelLarge>
+          }}
+          onMainItemSelect={(item) => {
+            if (item.label == "Toggle Dark Mode") {
+              darkMode.toggle()
+            } else if (item.label == "Connect Wallet") {
+              if (!connected) onConnect()
+            } else router.push(item.label.toLowerCase() === 'home' ? "/" : `/${item.label.toLowerCase()}`)
+          }}
+        />
         <Grid behavior={BEHAVIOR.fixed}>
           <Cell span={12}>
-          <div style={{marginTop: 50}}>
-            {children}
-          </div>
+            <div style={{ marginTop: 50 }}>
+              {children}
+            </div>
           </Cell>
         </Grid>
         <Block paddingTop="100px">
         </Block>
-        <Footer/>
-    </div>
+        <Footer />
+      </div>
   );
 };
 export default (Page);
