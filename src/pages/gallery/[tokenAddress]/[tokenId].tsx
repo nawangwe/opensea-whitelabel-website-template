@@ -50,7 +50,7 @@ function GalleryItemDetails({ order, size }: GalleryItemDetailsProps) {
   const [css] = useStyletron();
   const [showTransactionModal, setShowTransactionModal] = React.useState(false)
   const [creatingOrder, setCreatingOrder] = React.useState(false)
-  const [errorMessage, setErrorMessage] = React.useState(null)
+  const [dialogMessage, setDialogMessage] = React.useState(null)
   const { addressValue, providerValue, connectedValue } = React.useContext(Context)
   const [address] = addressValue
   const [provider] = providerValue
@@ -78,9 +78,10 @@ function GalleryItemDetails({ order, size }: GalleryItemDetailsProps) {
           setCreatingOrder(true)
           setShowTransactionModal(true)
           await seaport.fulfillOrder({ order, accountAddress: address })
+          setDialogMessage("Order was a success!")
         } catch (error) {
           console.log(error)
-          setErrorMessage(error.message)
+          setDialogMessage(error.message)
         } finally {
           setCreatingOrder(false)
         }
@@ -97,12 +98,12 @@ function GalleryItemDetails({ order, size }: GalleryItemDetailsProps) {
           <ModalHeader>Creating Order</ModalHeader>
           <ModalBody>
             {creatingOrder && <Spinner />}
-            {errorMessage && `${errorMessage}`}
+            {dialogMessage && `${dialogMessage}`}
           </ModalBody>
           {!creatingOrder &&<ModalFooter>
             <ModalButton onClick={() => { 
               setShowTransactionModal(false); 
-              setErrorMessage(null) }}>Close</ModalButton>
+              setDialogMessage(null) }}>Close</ModalButton>
           </ModalFooter>}
         </Modal>
         <Grid behavior={BEHAVIOR.fixed} gridMargins={0} gridGutters={100}>

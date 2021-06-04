@@ -29,9 +29,8 @@ export async function getServerSideProps() {
   })
 
   const response: { orders: Order[], count: number; } = await seaport.api.getOrders({
-    owner: process.env.OPEN_SEA_WALLET_ADDRESS,
-    include_invalid: false
-  } as any)
+    maker: process.env.OPEN_SEA_WALLET_ADDRESS
+  })
 
   const orders = JSON.parse(JSON.stringify(response)).orders
 
