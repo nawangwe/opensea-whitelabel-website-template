@@ -12,7 +12,7 @@ interface GalleryProps extends SizeMeProps {
   orders: Order[]
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
 
   const provider = new Web3.default.providers.HttpProvider('https://mainnet.infura.io')
 
@@ -21,12 +21,12 @@ export async function getStaticProps() {
   })
 
    const response: { orders: Order[], count: number; } = await seaport.api.getOrders({
-    owner: process.env.OPEN_SEA_WALLET_ADDRESS
+    maker: process.env.OPEN_SEA_WALLET_ADDRESS,
   })
 
   const orders = JSON.parse(JSON.stringify(response)).orders
 
-  return { props: { orders: orders } }
+  return { props: { orders: orders.filter((v,i,a)=>a.findIndex(t=>(t.asset.tokenId === v.asset.tokenId))===i) }} // getting rid of duplicate entires in the order book
 }
 
 export const sum = (a: number, b: number) => a + b;
@@ -41,7 +41,7 @@ function Gallery ({orders, size}: GalleryProps) {
             columnWidth={size.width <= 768 ? '100%' : '33.33%'}
             gutterWidth={50}
             gutterHeight={50}
-            appearDelay={500}
+            monitorImagesLoaded={true}
           >
             {orders.map(order => {
             return(
