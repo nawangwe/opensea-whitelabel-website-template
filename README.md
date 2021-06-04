@@ -22,8 +22,17 @@ The current implementation is a simple marketplace for an artist to sell their N
 
 ## Usage
 
- `yarn` or `npm install` to install dependencies
+Clone source code and:
+
+ - Get Infura account at http://infura.io
  
- `yarn dev` or `npm run dev` to run dev server
- 
- `yarn build` or `npm run build` to build
+ - Edit **.env.local** and :
+	 - add infura project id in `NEXT_PUBLIC_REACT_APP_INFURA_ID` variable
+	- add your wallet address in `OPEN_SEA_WALLET_ADDRESS` variable
+	- change other variables such as titles & links
+   
+ - `yarn` or `npm install` to install dependencies
+
+ - `yarn dev` or `npm run dev` to run dev server
+
+ - `yarn build` or `npm run build` to build
