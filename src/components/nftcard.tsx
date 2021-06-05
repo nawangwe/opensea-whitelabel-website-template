@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useStyletron } from 'baseui';
-import { Order } from 'opensea-js/lib/types';
+import { OpenSeaAsset } from 'opensea-js/lib/types';
 import { Card } from 'baseui/card';
 import { Cell, Grid } from 'baseui/layout-grid';
 import { LabelLarge } from 'baseui/typography';
@@ -8,15 +8,15 @@ import { getPriceLabel } from '../helpers/utilities';
 import Link from 'next/link';
 
 interface NFTCardProps {
-  order: Order
+  asset: OpenSeaAsset
 }
 
 const NFTCard = (props: NFTCardProps) => {
-  const { order } = props
+  const { asset } = props
   const [css, theme] = useStyletron()
   const [hovered, setHovered] = React.useState(false)
   return (
-    <Link href={`/gallery/${order.asset.tokenAddress}/${order.asset.tokenId}`}>
+    <Link href={`/gallery/${asset.tokenAddress}/${asset.tokenId}`}>
       <Card
         overrides={{
           Root: {
@@ -31,15 +31,15 @@ const NFTCard = (props: NFTCardProps) => {
           },
           HeaderImage: { style: { width: '95%', padding: '2.5%' } }
         }}
-        headerImage={order.asset.imageUrl.replace('s250', 's600')}
+        headerImage={asset.imageUrl.replace('s250', 's600')}
         title={
           <Grid gridMargins={0} gridGutters={0} overrides={{ Grid: { style: { flexWrap: 'unset' } } }}>
             <Cell span={8}>
-              <LabelLarge>{order.asset.name}</LabelLarge>
+              <LabelLarge>{asset.name}</LabelLarge>
             </Cell>
-            <Cell span={4}>
-              <LabelLarge className={css({ float: 'right' })}>{getPriceLabel(order)}</LabelLarge>
-            </Cell>
+            { asset.sellOrders && <Cell span={4}>
+              <LabelLarge className={css({ float: 'right' })}>{getPriceLabel(asset.sellOrders[0])}</LabelLarge>
+            </Cell>}
           </Grid>
         }>
       </Card>

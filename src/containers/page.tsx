@@ -8,19 +8,20 @@ import { Button } from 'baseui/button';
 import Footer from '../components/footer';
 import { FaLightbulb } from 'react-icons/fa';
 import useDarkMode from 'use-dark-mode'
-import { LabelLarge } from 'baseui/typography';
+import { HeadingSmall, LabelLarge } from 'baseui/typography';
 import Web3 from "web3";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { getChainData } from '../helpers/utilities';
 import Context from '../context';
+import { SizeMeProps, withSize } from 'react-sizeme'
 
-interface PageProps {
+interface PageProps extends SizeMeProps {
   children?: React.ReactNode
   pageRoute: String
 }
 
-function Page({ children, pageRoute }: PageProps) {
+function Page({ children, pageRoute, size }: PageProps) {
 
   var web3Modal = React.useRef(null);
 
@@ -33,12 +34,13 @@ function Page({ children, pageRoute }: PageProps) {
   const [connected, setConnected] = connectedValue
   const [networkId, setNetworkId] = React.useState(1)
   const [chainId, setChainId] = React.useState(1)
+
+  // we conditionally add items here incase it's a mobile device so as to avoid showing them when the navbar override happens
   const [mainItems, setMainItems] = React.useState([
     { label: "Home", active: pageRoute.toLowerCase() === 'home' },
     { label: "Gallery", active: pageRoute.toLowerCase() === 'gallery' },
-    { label: "About", active: pageRoute.toLowerCase() === 'about' },
-    { label: "Connect Wallet" },
-    { label: "Toggle Dark Mode" }
+    ... size.width > 1136  ? [{label: "Connect Wallet"}] : [],
+    ... size.width > 1136  ? [{label: "Toggle Dark Mode"}] : []
   ]);
   const darkMode = useDarkMode()
 
@@ -137,8 +139,9 @@ function Page({ children, pageRoute }: PageProps) {
             if (item.label == "Toggle Dark Mode") {
               return <FaLightbulb style={{ width: 30, height: 30 }} color={theme.colors.contentPrimary} />
             } else if (item.label == "Connect Wallet") {
-              if (connected)
+              if (connected){
                 return <Button size='compact' shape='pill' >{address.substring(0, 10) + '...'}</Button>
+              }
               else
                 return <Button size='compact' shape='pill' kind='secondary'>Connect Wallet</Button>
             }
@@ -151,6 +154,26 @@ function Page({ children, pageRoute }: PageProps) {
               if (!connected) onConnect()
             } else router.push(item.label.toLowerCase() === 'home' ? "/" : `/${item.label.toLowerCase()}`)
           }}
+          // We create an override here to display the buttons in the navbar on mobile devices
+          // @ts-ignore
+          overrides={ 
+            size.width <= 1136 ? {AppName: {component: ({$value}) => (
+            <Grid behavior={BEHAVIOR.fixed} gridGaps={20} gridColumns={[12,12,12,12]} overrides={{Grid: {style: {width: '100%', paddingRight: '0px !important'}}}}>
+              <Cell span={6} overrides={{Cell: {
+                style: {display: 'flex !important', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '0px !important'}
+              }}}>
+                <HeadingSmall overrides={{Block: {props: {$marginTop: 0, $marginBottom: 0}}}}>{process.env.NEXT_PUBLIC_TITLE}</HeadingSmall>
+              </Cell>
+              <Cell span={6} overrides={{Cell: {
+                style: {display: 'flex !important', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '0px !important', paddingRight: '0px !important'}
+              }}}>
+                {connected ? <Button size='compact' shape='pill' >{address.substring(0, 10) + '...'}</Button> : <Button size='compact' shape='pill' kind='secondary'>Connect Wallet</Button>}
+                <FaLightbulb onClick={()=>darkMode.toggle()} style={{ width: 30, height: 30, marginLeft: 10 }} color={theme.colors.contentPrimary} />
+              </Cell>
+            </Grid>
+          )}} : {}
+        }
+        /* eslint-enable */
         />
         <Grid behavior={BEHAVIOR.fixed}>
           <Cell span={12}>
@@ -161,8 +184,8 @@ function Page({ children, pageRoute }: PageProps) {
         </Grid>
         <Block paddingTop="100px">
         </Block>
-        <Footer />
+        <Footer size={size}/>
       </div>
   );
 };
-export default (Page);
+export default withSize()(Page);

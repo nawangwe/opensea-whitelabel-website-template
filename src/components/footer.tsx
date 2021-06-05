@@ -6,7 +6,7 @@ import { FaInstagram } from 'react-icons/fa';
 import { FaGithub } from 'react-icons/fa';
 import { LabelSmall } from 'baseui/typography';
 
-function Footer() {
+function Footer({size}) {
   const [css, theme] = useStyletron();
   return (
     <div className={css({
@@ -16,8 +16,14 @@ function Footer() {
         paddingBottom: theme.sizing.scale800,
         boxShadow: 'rgb(0 0 0 / 8%) 0px -1px 0px'
         })}>
-        <Grid behavior={BEHAVIOR.fixed} >
-            <Cell span={6}>
+        <Grid behavior={BEHAVIOR.fixed} gridGaps={20} gridColumns={[6,6,12,12]} >
+            <Cell span={6} overrides={{Cell: {
+                style: {
+                    display: 'flex !important',
+                    flexDirection: 'column',
+                    alignItems: size.width <= 1136 ? 'center' : 'flex-start'
+                }
+            }}}>
                 <LabelSmall className={css({ color: theme.colors.contentPrimary})}>© 2021 Maxim Nawangwe</LabelSmall>
                 <div style={{marginTop: 10}}>
                 <a href={`${process.env.NEXT_PUBLIC_TWITTER}`} target="_blank"><FaTwitter style={{width: 30, height: 30}} color={theme.colors.contentPrimary}/></a>
@@ -25,12 +31,16 @@ function Footer() {
                 <a href={`${process.env.NEXT_PUBLIC_GITHUB}`} target="_blank"><FaGithub style={{width: 30, height: 30, marginLeft: 10}} color={theme.colors.contentPrimary}/></a>
                 </div>
             </Cell>
-            <Cell span={6}>
-                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end'}}>
-                    <LabelSmall className={css({ color: theme.colors.contentPrimary})}>Created with OpenSea whitelable template</LabelSmall>
-                    <div style={{marginTop: 10}}/>
-                    <a href="https://github.com/nawangwe/opensea-website-template" target="_blank"><FaGithub style={{width: 30, height: 30, float: 'right'}} color={theme.colors.contentPrimary}/></a>
-                </div>
+            <Cell span={6} overrides={{Cell: {
+                style: {
+                    display: 'flex !important',
+                    flexDirection: 'column',
+                    alignItems: size.width <= 1136 ? 'center' : 'flex-end'
+                }
+            }}}>
+                <LabelSmall className={css({ color: theme.colors.contentPrimary})}>Created with OpenSea whitelable template</LabelSmall>
+                <div style={{marginTop: 10}}/>
+                <a href="https://github.com/nawangwe/opensea-whitelabel-website-template" target="_blank"><FaGithub style={{width: 30, height: 30}} color={theme.colors.contentPrimary}/></a>
             </Cell>
         </Grid>
     </div>
