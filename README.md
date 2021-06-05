@@ -19,6 +19,8 @@ The current implementation is a simple marketplace for an artist to sell their N
  - [ ] (guest) Sell NFT
  - [ ]  (guest) Auction NFT
 
+View [Demo](https://opensea-demo.nawangwe.dev)
+
 ## Usage
 
 Clone source code and:
