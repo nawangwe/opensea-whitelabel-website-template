@@ -1,15 +1,23 @@
 import * as React from 'react';
 import StackGrid from "react-stack-grid";
-import sizeMe, { SizeMeProps } from 'react-sizeme'
+import {Button} from 'baseui/button';
+import {ButtonGroup, MODE} from 'baseui/button-group';
+import { SizeMeProps, withSize } from 'react-sizeme'
 
 import * as Web3 from 'web3'
 import { OpenSeaPort, Network } from 'opensea-js'
-import { Order } from 'opensea-js/lib/types';
+import { OpenSeaAsset } from 'opensea-js/lib/types';
 import Page from '../containers/page';
 import NFTCard from '../components/nftcard';
 
 interface GalleryProps extends SizeMeProps {
-  orders: Order[]
+  assets: OpenSeaAsset[]
+}
+
+enum LISTINGMODE {
+  ALL = 0,
+  BUY = 1,
+  SOLD = 2
 }
 
 export async function getServerSideProps() {
@@ -20,39 +28,70 @@ export async function getServerSideProps() {
     networkName: Network.Main
   })
 
-   const response: { orders: Order[], count: number; } = await seaport.api.getOrders({
-    maker: process.env.OPEN_SEA_WALLET_ADDRESS,
-  })
+  const response: { assets: OpenSeaAsset[], estimatedCount: number; } = await seaport.api.getAssets({
+    collection_slug: process.env.OPEN_SEA_COLLECTION_SLUG
+  } as any)
 
-  const orders = JSON.parse(JSON.stringify(response)).orders
+  const assets = JSON.parse(JSON.stringify(response)).assets
 
-  return { props: { orders: orders.filter((v,i,a)=>a.findIndex(t=>(t.asset.tokenId === v.asset.tokenId))===i) }} // getting rid of duplicate entires in the order book
+  // sort items not on sale to bottom
+  assets.sort(function(a,b){ 
+    if(a.sellOrders != null) return -1;
+    else if(a.sellOrders === null) return 1
+  });
+
+  return { props: { assets: assets } }
 }
 
-export const sum = (a: number, b: number) => a + b;
+function Gallery ({assets, size}: GalleryProps) {
 
-function Gallery ({orders, size}: GalleryProps) {
+  const [showSellOrders, setShowSellOrders] = React.useState(false)
+  const [selectedListingMode, setSelectedListingMode] = React.useState<LISTINGMODE>(0);
+
   return (
     <div>
         <Page pageRoute="gallery">
-          {/* <HeaderImage /> */}
+          <div>
+            <ButtonGroup
+              mode={MODE.radio}
+              selected={selectedListingMode}
+              onClick={(_event, index) => {
+                setSelectedListingMode(index);
+              }}
+              overrides={{Root: {style: {justifyContent: 'flex-end'}}}}
+            >
+              <Button>All</Button>
+              <Button>On Sale / Auction</Button>
+              <Button>Sold</Button>
+            </ButtonGroup>
+          </div>
           <StackGrid
-            style={{marginTop: 50, zIndex: 0}}
+            style={{marginTop: 25, zIndex: 0}}
             columnWidth={size.width <= 768 ? '100%' : '33.33%'}
             gutterWidth={50}
             gutterHeight={50}
             monitorImagesLoaded={true}
           >
-            {orders.map(order => {
+            {assets.filter(asset => {
+              if(selectedListingMode === LISTINGMODE.ALL){
+                return true
+              } else if (selectedListingMode === LISTINGMODE.BUY){
+                if(asset.sellOrders === null) return false
+                else return true
+              } else if (selectedListingMode === LISTINGMODE.SOLD){
+                if(asset.sellOrders === null) return true
+                else return false
+              }
+            }).map(asset => {
             return(
-              <div key={order.asset.tokenId}>
-                <NFTCard order={order}/>
+              <div key={asset.tokenId}>
+                <NFTCard asset={asset}/>
               </div>
             )
-          })}
+            })}
           </StackGrid>
         </Page>
     </div>
   );
 };
-export default sizeMe()(Gallery);
+export default withSize()(Gallery);

@@ -47,3 +47,5 @@ export function getPriceLabel(order: Order) {
   const isETH = paymentTokenContract.symbol === "ETH"
   return `${isETH ? "Ξ" : ""} ${priceLabel} ${isETH ? "" : paymentTokenContract.symbol}`
 }
+
+export const truncate = (input, characterLength) => input.length > characterLength ? `${input.substring(0, characterLength)}...` : input;

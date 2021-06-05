@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Grid, Cell, BEHAVIOR } from 'baseui/layout-grid';
-import sizeMe, { SizeMeProps } from 'react-sizeme'
+import { SizeMeProps, withSize } from 'react-sizeme'
 import * as Web3 from 'web3'
 import { OpenSeaPort, Network } from 'opensea-js'
-import { Order, OrderSide } from 'opensea-js/lib/types';
+import { OpenSeaAsset } from 'opensea-js/lib/types';
 import Page from '../../../containers/page';
 import { HeadingXLarge, ParagraphLarge } from 'baseui/typography';
 import { ListItem, ListItemLabel } from 'baseui/list';
@@ -14,15 +14,22 @@ import {
   ModalFooter,
   ModalButton
 } from 'baseui/modal';
+import {Tag, VARIANT} from 'baseui/tag';
 import { Spinner } from 'baseui/spinner';
 import { useStyletron } from 'baseui';
 import { Block } from 'baseui/block';
 import { Button } from 'baseui/button';
-import { getPriceLabel } from '../../../helpers/utilities';
+import { getPriceLabel, truncate } from '../../../helpers/utilities';
 import Context from '../../../context';
+import dynamic from 'next/dynamic'
+
+const ReactViewer = dynamic(
+  () => import('react-viewer'),
+  { ssr: false }
+)
 
 interface GalleryItemDetailsProps extends SizeMeProps {
-  order: Order
+  asset: OpenSeaAsset
 }
 
 export async function getServerSideProps({ params }) {
@@ -33,20 +40,17 @@ export async function getServerSideProps({ params }) {
     networkName: Network.Main
   })
 
-  const response: Order = await seaport.api.getOrder({
-    asset_contract_address: params.tokenAddress,
-    token_id: params.tokenId,
-    side: OrderSide.Sell
+  const response: OpenSeaAsset = await seaport.api.getAsset({
+    tokenAddress: params.tokenAddress,
+    tokenId: params.tokenId
   })
 
-  const order = JSON.parse(JSON.stringify(response))
+  const asset = JSON.parse(JSON.stringify(response))
 
-  return { props: { order: order } }
+  return { props: { asset: asset } }
 }
 
-export const sum = (a: number, b: number) => a + b;
-
-function GalleryItemDetails({ order, size }: GalleryItemDetailsProps) {
+function GalleryItemDetails({ asset, size }: GalleryItemDetailsProps) {
   const [css] = useStyletron();
   const [showTransactionModal, setShowTransactionModal] = React.useState(false)
   const [creatingOrder, setCreatingOrder] = React.useState(false)
@@ -56,6 +60,10 @@ function GalleryItemDetails({ order, size }: GalleryItemDetailsProps) {
   const [provider] = providerValue
   const [connected] = connectedValue
   const [seaport, setSeaport] = React.useState(null)
+  const [showImageViewer, setShowImageViewer] = React.useState(false)
+
+  const sellOrder = asset.sellOrders.length > 0 ? asset.sellOrders[0] : null
+  const buyOrder = asset.buyOrders.length > 0 ? asset.buyOrders[0] : null
 
   React.useEffect(() => {
     if (provider != null) {
@@ -67,13 +75,9 @@ function GalleryItemDetails({ order, size }: GalleryItemDetailsProps) {
     }
   }, [provider])
 
-  const owner = order.asset
-    ? order.asset.owner
-    : order.assetBundle.assets[0].owner
-
   const initiatePurchase = (order) => {
     const buyAsset = async () => {
-      if (owner.address != address) {
+      if (asset.owner.address != address) {
         try {
           setCreatingOrder(true)
           setShowTransactionModal(true)
@@ -94,6 +98,13 @@ function GalleryItemDetails({ order, size }: GalleryItemDetailsProps) {
   return (
     <div>
       <Page pageRoute="gallery">
+      <ReactViewer
+        visible={showImageViewer}
+        onClose={() => { setShowImageViewer(false) } }
+        images={[{src: asset.imageUrl.replace('s250', 's600')}]}
+        noToolbar={true}
+        noNavbar={true}
+        />
         <Modal isOpen={showTransactionModal} closeable={false}>
           <ModalHeader>Creating Order</ModalHeader>
           <ModalBody>
@@ -106,57 +117,84 @@ function GalleryItemDetails({ order, size }: GalleryItemDetailsProps) {
               setDialogMessage(null) }}>Close</ModalButton>
           </ModalFooter>}
         </Modal>
-        <Grid behavior={BEHAVIOR.fixed} gridMargins={0} gridGutters={100}>
+        <Grid behavior={BEHAVIOR.fixed} gridMargins={0} gridGutters={100} gridColumns={[6,6,12,12]}>
           <Cell
             span={6}
             overrides={{
               Cell: {
                 style: (_) => ({
-                  backgroundColor: 'rgba(0, 0, 0, 0.05)'
+                  backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                  'padding-left': '0px !important',
+                  'padding-right': '0px !important'
                 })
               }
             }}>
             <img
-              style={{ height: '90vh', width: '100%', objectFit: 'contain' }}
-              src={order.asset.imageUrl.replace('s250', 's600')} />
+              onClick={()=>{setShowImageViewer(true)}}
+              style={{ maxHeight: '90vh', width: '100%', objectFit: 'contain' }}
+              src={asset.imageUrl.replace('s250', 's600')} />
           </Cell>
           <Cell span={6}>
             <HeadingXLarge
               overrides={{ Block: { props: { $marginTop: ['scale800', 'scale800', 'scale800', 0] } } }}
             >
               <Block></Block>
-              {order.asset.name}
+              {asset.name}
             </HeadingXLarge>
-            <ParagraphLarge>{order.asset.description}</ParagraphLarge>
+            <ParagraphLarge>{asset.description}</ParagraphLarge>
             <ul
               className={css({
                 paddingLeft: 0,
                 paddingRight: 0,
               })}>
+
               <ListItem overrides={{ Content: { style: { paddingLeft: 0, marginLeft: 0 } } }}>
                 <ListItemLabel description="Collection">
-                  {order.asset.collection.name}
+                  {asset.collection.name}
                 </ListItemLabel>
               </ListItem>
-              <ListItem overrides={{ Content: { style: { paddingLeft: 0, marginLeft: 0 } } }}>
-                <ListItemLabel description="Created by">
-                  {order.makerAccount.user.username}
+
+              {asset.lastSale && <ListItem overrides={{ Content: { style: { paddingLeft: 0, marginLeft: 0 } } }}>
+                <ListItemLabel description="Last Buyer">
+                  {asset.lastSale.transaction.fromAccount.user ? 
+                  asset.lastSale.transaction.fromAccount.user.username : truncate(asset.lastSale.transaction.fromAccount.address, 20)}
                 </ListItemLabel>
-              </ListItem>
-              <ListItem overrides={{ Content: { style: { paddingLeft: 0, marginLeft: 0 } } }}>
+              </ListItem>}
+
+              { asset.sellOrders.length > 0 && <ListItem overrides={{ Content: { style: { paddingLeft: 0, marginLeft: 0 } } }}>
                 <ListItemLabel description="Price">
-                  {getPriceLabel(order)}
+                  {getPriceLabel(asset.sellOrders[0])}
                 </ListItemLabel>
-              </ListItem>
+              </ListItem>}
+
             </ul>
-            {
-              connected ? <Button disabled={owner.address == address} onClick={() => { initiatePurchase(order) }}>{owner.address == address ? "You already own this piece" : `Buy for ${getPriceLabel(order)}`}</Button>
-                : <Button kind='secondary'>Connect Wallet</Button>
-            }
+
+            {(() => {
+              if(connected && asset.lastSale){
+                if(asset.lastSale.transaction.fromAccount.address === address.toLowerCase()){
+                  return <Tag closeable={false} variant={VARIANT.outlined} kind="positive"> You own this item </Tag>
+                }
+              }
+            })()}
+
+            {(() => {
+              if(sellOrder){
+                if(connected){
+                  if(asset.lastSale && asset.lastSale.transaction.fromAccount.address === address.toLowerCase()
+                    || sellOrder.makerAccount === address){
+                    return <div/>
+                  } else {
+                    return <Button disabled={asset.owner.address == address} onClick={() => { initiatePurchase(sellOrder) }}>{`Buy for ${getPriceLabel(sellOrder)}`}</Button>
+                  }
+                } else {
+                  return <Button kind='secondary'>Connect Wallet</Button>
+                }
+              }
+            })()} 
           </Cell>
         </Grid>
       </Page>
     </div>
   );
 };
-export default sizeMe()(GalleryItemDetails);
+export default withSize()(GalleryItemDetails);
