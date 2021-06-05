@@ -13,9 +13,8 @@ The current implementation is a simple marketplace for an artist to sell their N
  - [x] View order details
  - [x] Integrate [web3modal](https://github.com/Web3Modal/web3modal)
  - [x] Purchase NFT
- - [ ] (maker) Create NFT
- - [ ] (maker) Sell NFT
- - [ ] (maker) Auction NFT
+ - [ ] (owner) Sell NFT
+ - [ ] (owner) Auction NFT
  - [ ] (guest) List purchased NFTs for current wallet connected
  - [ ] (guest) Sell NFT
  - [ ]  (guest) Auction NFT
@@ -29,6 +28,7 @@ Clone source code and:
  - Edit **.env.local** and :
 	 - add infura project id in `NEXT_PUBLIC_REACT_APP_INFURA_ID` variable
 	- add your wallet address in `OPEN_SEA_WALLET_ADDRESS` variable
+	- - add your wallet address in `OPEN_SEA_COLLECTION_SLUG` variable
 	- change other variables such as titles & links
    
  - `yarn` or `npm install` to install dependencies
