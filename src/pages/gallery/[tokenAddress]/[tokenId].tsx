@@ -212,8 +212,8 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
             {(() => {
               if (connected && asset.lastSale) {
                 if (
-                  asset.lastSale.transaction.fromAccount.address ===
-                  address.toLowerCase()
+                  asset.lastSale.transaction.fromAccount.address === address.toLowerCase() || 
+                  (asset.sellOrders.length > 0 && asset.sellOrders[0].makerAccount.address === address.toLowerCase())
                 ) {
                   return (
                     <Tag
