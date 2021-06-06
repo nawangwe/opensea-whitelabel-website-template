@@ -34,13 +34,11 @@ function Page({ children, pageRoute, size }: PageProps) {
   const [connected, setConnected] = connectedValue
   const [networkId, setNetworkId] = React.useState(1)
   const [chainId, setChainId] = React.useState(1)
-
-  // we conditionally add items here incase it's a mobile device so as to avoid showing them when the navbar override happens
   const [mainItems, setMainItems] = React.useState([
     { label: "Home", active: pageRoute.toLowerCase() === 'home' },
     { label: "Gallery", active: pageRoute.toLowerCase() === 'gallery' },
-    ... size.width > 1136  ? [{label: "Connect Wallet"}] : [],
-    ... size.width > 1136  ? [{label: "Toggle Dark Mode"}] : []
+    { label: "Connect Wallet" },
+    { label: "Toggle Dark Mode" }
   ]);
   const darkMode = useDarkMode()
 
@@ -128,64 +126,73 @@ function Page({ children, pageRoute, size }: PageProps) {
   };
 
   return (
-      <div className={css({
-        backgroundColor: theme.colors.primaryB,
-        minHeight: '100vh'
-      })}>
-        <AppNavBar
-          title={process.env.NEXT_PUBLIC_TITLE}
-          mainItems={mainItems}
-          mapItemToNode={(item) => {
-            if (item.label == "Toggle Dark Mode") {
-              return <FaLightbulb style={{ width: 30, height: 30 }} color={theme.colors.contentPrimary} />
-            } else if (item.label == "Connect Wallet") {
-              if (connected){
-                return <Button size='compact' shape='pill' >{address.substring(0, 10) + '...'}</Button>
-              }
-              else
-                return <Button size='compact' shape='pill' kind='secondary'>Connect Wallet</Button>
+    <div className={css({
+      backgroundColor: theme.colors.primaryB,
+      minHeight: '100vh'
+    })}>
+      <AppNavBar
+        title={process.env.NEXT_PUBLIC_TITLE}
+        mainItems={mainItems}
+        mapItemToNode={(item) => {
+          if (item.label == "Toggle Dark Mode") {
+            return <FaLightbulb style={{ width: 30, height: 30 }} color={theme.colors.contentPrimary} />
+          } else if (item.label == "Connect Wallet") {
+            if (connected) {
+              return <Button size='compact' shape='pill' >{address.substring(0, 10) + '...'}</Button>
             }
-            else return <LabelLarge>{item.label}</LabelLarge>
-          }}
-          onMainItemSelect={(item) => {
-            if (item.label == "Toggle Dark Mode") {
-              darkMode.toggle()
-            } else if (item.label == "Connect Wallet") {
-              if (!connected) onConnect()
-            } else router.push(item.label.toLowerCase() === 'home' ? "/" : `/${item.label.toLowerCase()}`)
-          }}
-          // We create an override here to display the buttons in the navbar on mobile devices
-          // @ts-ignore
-          overrides={ 
-            size.width <= 1136 ? {AppName: {component: ({$value}) => (
-            <Grid behavior={BEHAVIOR.fixed} gridGaps={20} gridColumns={[12,12,12,12]} overrides={{Grid: {style: {width: '100%', paddingRight: '0px !important'}}}}>
-              <Cell span={6} overrides={{Cell: {
-                style: {display: 'flex !important', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '0px !important'}
-              }}}>
-                <HeadingSmall overrides={{Block: {props: {$marginTop: 0, $marginBottom: 0}}}}>{process.env.NEXT_PUBLIC_TITLE}</HeadingSmall>
-              </Cell>
-              <Cell span={6} overrides={{Cell: {
-                style: {display: 'flex !important', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '0px !important', paddingRight: '0px !important'}
-              }}}>
-                {connected ? <Button size='compact' shape='pill' >{address.substring(0, 10) + '...'}</Button> : <Button size='compact' shape='pill' kind='secondary'>Connect Wallet</Button>}
-                <FaLightbulb onClick={()=>darkMode.toggle()} style={{ width: 30, height: 30, marginLeft: 10 }} color={theme.colors.contentPrimary} />
-              </Cell>
-            </Grid>
-          )}} : {}
+            else
+              return <Button size='compact' shape='pill' kind='secondary'>Connect Wallet</Button>
+          }
+          else return <LabelLarge>{item.label}</LabelLarge>
+        }}
+        onMainItemSelect={(item) => {
+          if (item.label == "Toggle Dark Mode") {
+            darkMode.toggle()
+          } else if (item.label == "Connect Wallet") {
+            if (!connected) onConnect()
+          } else router.push(item.label.toLowerCase() === 'home' ? "/" : `/${item.label.toLowerCase()}`)
+        }}
+        // We create an override here to display the buttons in the navbar on mobile devices
+        // @ts-ignore
+        overrides={
+          size.width <= 1136 ? {
+            AppName: {
+              component: () => (
+                <Grid behavior={BEHAVIOR.fixed} gridGaps={20} gridColumns={[12, 12, 12, 12]} overrides={{ Grid: { style: { width: '100%', paddingRight: '0px !important' } } }}>
+                  <Cell span={6} overrides={{
+                    Cell: {
+                      style: { display: 'flex !important', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '0px !important' }
+                    }
+                  }}>
+                    <HeadingSmall overrides={{ Block: { props: { $marginTop: 0, $marginBottom: 0 } } }}>{process.env.NEXT_PUBLIC_TITLE}</HeadingSmall>
+                  </Cell>
+                  <Cell span={6} overrides={{
+                    Cell: {
+                      style: { display: 'flex !important', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '0px !important', paddingRight: '0px !important' }
+                    }
+                  }}>
+                    {connected
+                      ? <Button size='compact' shape='pill' >{address.substring(0, 10) + '...'}</Button>
+                      : <Button size='compact' shape='pill' kind='secondary' onClick={() => { if (!connected) onConnect() }}>Connect</Button>}
+                    <FaLightbulb onClick={() => darkMode.toggle()} style={{ width: 25, height: 25, marginLeft: 10 }} color={theme.colors.contentPrimary} />
+                  </Cell>
+                </Grid>
+              )
+            }
+          } : {}
         }
-        /* eslint-enable */
-        />
-        <Grid behavior={BEHAVIOR.fixed}>
-          <Cell span={12}>
-            <div style={{ marginTop: 50 }}>
-              {children}
-            </div>
-          </Cell>
-        </Grid>
-        <Block paddingTop="100px">
-        </Block>
-        <Footer size={size}/>
-      </div>
+      />
+      <Grid behavior={BEHAVIOR.fixed}>
+        <Cell span={12}>
+          <div style={{ marginTop: 50 }}>
+            {children}
+          </div>
+        </Cell>
+      </Grid>
+      <Block paddingTop="100px">
+      </Block>
+      <Footer size={size} />
+    </div>
   );
 };
 export default withSize()(Page);
