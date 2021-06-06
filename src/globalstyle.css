@@ -1,3 +1,11 @@
 .react-viewer-mask {
     background-color: rgba(0, 0, 0, 0.9) !important
 }
+
+body.light-mode {
+    background: white;
+}
+
+body.dark-mode {
+    background: rgb(20, 20, 20);;
+}

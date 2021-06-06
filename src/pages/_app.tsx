@@ -13,7 +13,7 @@ import '../globalstyle.css'
 Router.events.on('routeChangeStart', () => NProgress.start()); Router.events.on('routeChangeComplete', () => NProgress.done()); Router.events.on('routeChangeError', () => NProgress.done());  
 
 function MyApp({ Component, pageProps }) {
-    const darkMode = useDarkMode()
+    const darkMode = useDarkMode(true)
     const theme = darkMode.value ? DarkTheme : DefaultTheme
     const [address, setAddress] = React.useState("")
     const [web3, setWeb3] = React.useState(null)

@@ -6,6 +6,7 @@ import {Cell, Grid} from 'baseui/layout-grid'
 import {LabelLarge} from 'baseui/typography'
 import {getPriceLabel} from '../helpers/utilities'
 import Link from 'next/link'
+import { Tag, VARIANT } from 'baseui/tag'
 
 interface NFTCardProps {
   asset: OpenSeaAsset
@@ -49,6 +50,15 @@ const NFTCard = (props: NFTCardProps) => {
               <Cell span={4}>
                 <LabelLarge className={css({float: 'right'})}>
                   {getPriceLabel(asset.sellOrders[0])}
+                </LabelLarge>
+              </Cell>
+            )}
+            {!asset.sellOrders 
+            && asset.lastSale 
+            && (
+              <Cell span={4}>
+                <LabelLarge className={css({float: 'right', color: 'green'})}>
+                  SOLD
                 </LabelLarge>
               </Cell>
             )}
