@@ -158,10 +158,10 @@ function Page({ children, pageRoute, size }: PageProps) {
           size.width <= 1136 ? {
             AppName: {
               component: () => (
-                <Grid behavior={BEHAVIOR.fixed} gridGaps={20} gridColumns={[12, 12, 12, 12]} overrides={{ Grid: { style: { width: '100%', paddingRight: '0px !important' } } }}>
+                <Grid behavior={BEHAVIOR.fixed} gridGaps={20} gridColumns={[12, 12, 12, 12]} overrides={{ Grid: { style: { width: '100%', paddingRight: '0px !important', paddingLeft: '0px !important'  } } }}>
                   <Cell span={6} overrides={{
                     Cell: {
-                      style: { display: 'flex !important', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '0px !important' }
+                      style: { display: 'flex !important', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '0px !important', paddingLeft: '0px !important'  }
                     }
                   }}>
                     <HeadingSmall overrides={{ Block: { props: { $marginTop: 0, $marginBottom: 0 } } }}>{process.env.NEXT_PUBLIC_TITLE}</HeadingSmall>
