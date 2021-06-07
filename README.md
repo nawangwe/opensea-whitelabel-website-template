@@ -23,6 +23,8 @@ View Demonstration at live site [gassanaqel.com](https://gassanaqel.com).
 
 ## Usage
 
+Before you get started, make sure you have an Opensea account and that you have already created a collections with some NFTs.
+
 Clone source code and:
  - create a **.env.local** file at the root directory and add the following data:
  
@@ -38,7 +40,7 @@ NEXT_PUBLIC_GITHUB="<YOUR GITHUB LINK>"
 
 # server side variables
 OPEN_SEA_WALLET_ADDRESS="<YOUR OPENSEA WALLET ADDRESS>"
-OPEN_SEA_COLLECTION_SLUG="<OPENSEANFT COLLECTION SLUG>"
+OPEN_SEA_COLLECTION_SLUG="<OPENSEA NFT COLLECTION SLUG>"
 ```
 
 - If you don't have yarn installed, [install yarn](https://classic.yarnpkg.com/en/docs/install).
