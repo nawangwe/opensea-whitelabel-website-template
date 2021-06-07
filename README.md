@@ -1,6 +1,6 @@
 
 
-# Opensea whitelabel website
+# Opensea whitelabel website template
 
 This is a Scaffold for an opensea marketplace using opensea-js. Based on a NextJS scaffold by [Tajo](https://github.com/tajo/nextjs-baseweb).
 
