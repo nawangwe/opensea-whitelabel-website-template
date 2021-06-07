@@ -2,6 +2,8 @@
 
 # Opensea whitelabel website template
 
+![Opensea whitelabel website template](opensea-whitelabel-website-template.jpg?raw=true "Opensea whitelabel website template")
+
 This is a Scaffold for an opensea marketplace using opensea-js. Based on a NextJS scaffold by [Tajo](https://github.com/tajo/nextjs-baseweb).
 
 The main goal of this project is to create a template based on baseui that any artists can use to create, display and sell their NFTS on their own website with an added layer of customization.
