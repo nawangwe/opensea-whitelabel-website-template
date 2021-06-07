@@ -23,7 +23,7 @@ View Demonstration at live site [gassanaqel.com](https://gassanaqel.com).
 
 ## Usage
 
-Before you get started, make sure you have an Opensea account and that you have already created a collections with some NFTs.
+Before you get started, make sure you have an Opensea account and that you have already created a collection with some NFTs.
 
 Clone source code and:
  - create a **.env.local** file at the root directory and add the following data:
