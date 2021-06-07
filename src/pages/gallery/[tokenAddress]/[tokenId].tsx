@@ -213,7 +213,7 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
               if (connected && asset.lastSale) {
                 if (
                   asset.lastSale.transaction.fromAccount.address.toLowerCase() === address.toLowerCase() || 
-                  (asset.sellOrders.length > 0 && asset.sellOrders[0].makerAccount.address.toLowerCase() === address.toLowerCase())
+                  (sellOrder && sellOrder.makerAccount.address.toLowerCase() === address.toLowerCase())
                 ) {
                   return (
                     <Tag
