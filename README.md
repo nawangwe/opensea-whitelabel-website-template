@@ -20,9 +20,6 @@ The current implementation is a simple marketplace for an artist to sell their N
  - [ ] (guest) Sell NFT
  - [ ]  (guest) Auction NFT
 
-View Demonstration at live site [gassanaqel.com](https://gassanaqel.com).
-
-
 ## Usage
 
 Before you get started, make sure you have an Opensea account and that you have already created a collection with some NFTs.
