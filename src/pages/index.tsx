@@ -16,36 +16,34 @@ interface IndexProps extends SizeMeProps {
 }
 
 export async function getServerSideProps () {
-  const provider = new Web3.default.providers.HttpProvider(
-    'https://mainnet.infura.io',
-  )
+  try {
+    const provider = new Web3.default.providers.HttpProvider(
+      'https://mainnet.infura.io',
+    )
 
-  const seaport = new OpenSeaPort(provider, {
-    networkName: Network.Main,
-  })
+    const seaport = new OpenSeaPort(provider, {
+      networkName: Network.Main,
+    })
 
-  let assets = []
-  let response: {
-    assets: OpenSeaAsset[]
-    estimatedCount: number
+    let assets = []
+
+    await seaport.api.getAssets({
+      collection_slug: process.env.OPEN_SEA_COLLECTION_SLUG,
+    } as any)
+    .then((apiResponse: { assets: OpenSeaAsset[], estimatedCount: number }) => {
+      assets = JSON.parse(JSON.stringify(apiResponse)).assets
+    })
+
+    // sort items not on sale to bottom
+    assets.sort(function (a, b) {
+      if (a.sellOrders != null) return -1
+      else if (a.sellOrders === null) return 1
+    })
+
+    return {props: {assets}}
+  } catch (error) {
+    return {props: {assets: []}}
   }
-
-  await seaport.api.getAssets({
-    collection_slug: process.env.OPEN_SEA_COLLECTION_SLUG,
-  } as any)
-  .then(apiResponse => {
-    response = apiResponse
-    assets = JSON.parse(JSON.stringify(response)).assets
-  })
-  .catch(error => console.log(error))
-
-  // sort items not on sale to bottom
-  assets.sort(function (a, b) {
-    if (a.sellOrders != null) return -1
-    else if (a.sellOrders === null) return 1
-  })
-
-  return {props: {assets}}
 }
 
 function Index ({assets, size}: IndexProps) {
