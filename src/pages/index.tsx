@@ -24,14 +24,20 @@ export async function getServerSideProps () {
     networkName: Network.Main,
   })
 
-  const response: {
+  let assets = []
+  let response: {
     assets: OpenSeaAsset[]
     estimatedCount: number
-  } = await seaport.api.getAssets({
+  }
+
+  await seaport.api.getAssets({
     collection_slug: process.env.OPEN_SEA_COLLECTION_SLUG,
   } as any)
-
-  const assets = JSON.parse(JSON.stringify(response)).assets
+  .then(apiResponse => {
+    response = apiResponse
+    assets = JSON.parse(JSON.stringify(response)).assets
+  })
+  .catch(error => console.log(error))
 
   // sort items not on sale to bottom
   assets.sort(function (a, b) {
@@ -39,7 +45,7 @@ export async function getServerSideProps () {
     else if (a.sellOrders === null) return 1
   })
 
-  return {props: {assets: assets}}
+  return {props: {assets}}
 }
 
 function Index ({assets, size}: IndexProps) {
