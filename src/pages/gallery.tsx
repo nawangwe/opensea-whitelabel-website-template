@@ -36,6 +36,7 @@ export async function getServerSideProps () {
       collection_slug: process.env.OPEN_SEA_COLLECTION_SLUG,
     } as any)
     .then((apiResponse: { assets: OpenSeaAsset[], estimatedCount: number }) => {
+      console.log(apiResponse)
       assets = JSON.parse(JSON.stringify(apiResponse)).assets
     })
 
@@ -47,7 +48,9 @@ export async function getServerSideProps () {
 
     return {props: {assets}}
   } catch (error) {
-    return {props: {assets: []}}
+    console.log(error)
+    return {
+      props: {assets: []}}
   }
 }
 
