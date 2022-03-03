@@ -1,21 +1,54 @@
-# Nextjs + Base Web + TypeScript + OpenSea
 
-This is a Scaffold for an opensea marketplace using opensea-js. Based on the opinionated scaffold by tajo.
 
-It's still in very early stages of development. I'm relatively new to web development so contributions are more than welcome.
+# Opensea whitelabel website template
 
-With Nextjs we can decide to do either SSR (Server Side Rendering) or Static Generation. This page currently uses Server Side Rendering but might be more beneficial to user Static rendering for users more interested in cost savings. However, this would need a rebuilt everytime an important aspect of the website is updated.
+![Opensea whitelabel website template](opensea-whitelabel-website-template.jpg?raw=true "Opensea whitelabel website template")
 
-The main goal of this project is to create a template based on baseui that any artists can use to display and sell their NFTS however they want to.
+This is a Scaffold for an opensea marketplace using opensea-js. Based on a NextJS scaffold by [Tajo](https://github.com/tajo/nextjs-baseweb).
 
-- OpenSeaJS
-- Nextjs
-- Base Web
-- web3
-- web3modal
-- Styletron
-- Jest
-- Eslint
-- Prettier
-- TypeScript
-- React Social Icons
+The main goal of this project is to create a template based on baseui that any artists can use to create, display and sell their NFTS on their own website with an added layer of customization.
+
+The current implementation is a simple marketplace for an artist to sell their NFTs they created on the [Opensea](https://opensea.io) marketplace.
+
+ - [x] List orders
+ - [x] View order details
+ - [x] Integrate [web3modal](https://github.com/Web3Modal/web3modal)
+ - [x] Purchase NFT
+ - [ ] (owner) Sell NFT
+ - [ ] (owner) Auction NFT
+ - [ ] (guest) List purchased NFTs for current wallet connected
+ - [ ] (guest) Sell NFT
+ - [ ]  (guest) Auction NFT
+
+## Usage
+
+Before you get started, make sure you have an Opensea account and that you have already created a collection with some NFTs.
+
+Clone source code and:
+ - create a **.env.local** file at the root directory and add the following data:
+ 
+ ```Shell
+# client side variables
+NEXT_PUBLIC_TITLE = "<WEBSITE TITLE>"
+NEXT_PUBLIC_INTRODUCTORY_TEXT = "<YOUR INTRODUCTORY TEXT>"
+NEXT_PUBLIC_REACT_APP_INFURA_ID="<YOUR INFURA.IO ID>"
+NEXT_PUBLIC_COPYRIGHT_TEXT="© <YOUR NAME>"
+NEXT_PUBLIC_TWITTER="<YOUR TWITTER LINK>"
+NEXT_PUBLIC_INSTAGRAM="<YOUR INSTAGRAM LINK>"
+NEXT_PUBLIC_GITHUB="<YOUR GITHUB LINK>"
+
+# server side variables
+OPEN_SEA_WALLET_ADDRESS="<YOUR OPENSEA WALLET ADDRESS>"
+OPEN_SEA_COLLECTION_SLUG="<OPENSEA NFT COLLECTION SLUG>"
+OPEN_SEA_API_KEY="<OPENSEA API KEY>"
+```
+
+- If you don't have yarn installed, [install yarn](https://classic.yarnpkg.com/en/docs/install).
+- open terminal at project directory and run:
+ 
+	 - `yarn` or `npm install` to install dependencies.
+
+	 - `yarn dev` or `npm run dev` to run dev server.
+
+	 - `yarn build` or `npm run build` to build.
+	 - `yarn start` to run build.

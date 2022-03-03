@@ -26,9 +26,10 @@ export async function getServerSideProps () {
       'https://mainnet.infura.io',
     )
 
-    const seaport = new OpenSeaPort(provider, {
-      networkName: Network.Main,
-    })
+  const seaport = new OpenSeaPort(provider, {
+    networkName: Network.Main,
+    apiKey: process.env.OPEN_SEA_API_KEY,
+  })
 
     let assets = []
 
