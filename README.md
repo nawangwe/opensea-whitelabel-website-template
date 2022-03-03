@@ -23,6 +23,7 @@ The current implementation is a simple marketplace for an artist to sell their N
 ## Usage
 
 Before you get started, make sure you have an Opensea account and that you have already created a collection with some NFTs.
+It is also compulsory now to have an Opensea API key, you can obtain that from [here](https://docs.opensea.io/reference/request-an-api-key).
 
 Clone source code and:
  - create a **.env.local** file at the root directory and add the following data:
@@ -36,6 +37,7 @@ NEXT_PUBLIC_COPYRIGHT_TEXT="© <YOUR NAME>"
 NEXT_PUBLIC_TWITTER="<YOUR TWITTER LINK>"
 NEXT_PUBLIC_INSTAGRAM="<YOUR INSTAGRAM LINK>"
 NEXT_PUBLIC_GITHUB="<YOUR GITHUB LINK>"
+NEXT_PUBLIC_OPEN_SEA_API_KEY="<OPENSEA API KEY>"
 
 # server side variables
 OPEN_SEA_WALLET_ADDRESS="<YOUR OPENSEA WALLET ADDRESS>"
