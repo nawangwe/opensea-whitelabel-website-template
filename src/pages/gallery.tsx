@@ -21,31 +21,38 @@ enum LISTINGMODE {
 }
 
 export async function getServerSideProps () {
-  const provider = new Web3.default.providers.HttpProvider(
-    'https://mainnet.infura.io',
-  )
+  try {
+    const provider = new Web3.default.providers.HttpProvider(
+      'https://mainnet.infura.io',
+    )
 
   const seaport = new OpenSeaPort(provider, {
     networkName: Network.Main,
     apiKey: process.env.OPEN_SEA_API_KEY,
   })
 
-  const response: {
-    assets: OpenSeaAsset[]
-    estimatedCount: number
-  } = await seaport.api.getAssets({
-    collection_slug: process.env.OPEN_SEA_COLLECTION_SLUG,
-  } as any)
+    let assets = []
 
-  const assets = JSON.parse(JSON.stringify(response)).assets
+    await seaport.api.getAssets({
+      collection_slug: process.env.OPEN_SEA_COLLECTION_SLUG,
+    } as any)
+    .then((apiResponse: { assets: OpenSeaAsset[], estimatedCount: number }) => {
+      console.log(apiResponse)
+      assets = JSON.parse(JSON.stringify(apiResponse)).assets
+    })
 
-  // sort items not on sale to bottom
-  assets.sort(function (a, b) {
-    if (a.sellOrders != null) return -1
-    else if (a.sellOrders === null) return 1
-  })
+    // sort items not on sale to bottom
+    assets.sort(function (a, b) {
+      if (a.sellOrders != null) return -1
+      else if (a.sellOrders === null) return 1
+    })
 
-  return {props: {assets: assets}}
+    return {props: {assets}}
+  } catch (error) {
+    console.log(error)
+    return {
+      props: {assets: []}}
+  }
 }
 
 function Gallery ({assets, size}: GalleryProps) {
