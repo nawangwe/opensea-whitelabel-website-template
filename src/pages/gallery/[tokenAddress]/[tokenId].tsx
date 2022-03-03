@@ -2,12 +2,7 @@ import * as React from 'react';
 import {Grid, Cell, BEHAVIOR} from 'baseui/layout-grid';
 import {SizeMeProps, withSize} from 'react-sizeme';
 import * as Web3 from 'web3';
-import {
-  OpenSeaPort,
-  Network,
-  orderToJSON as _orderToJSON,
-  orderFromJSON as _orderFromJSON,
-} from 'opensea-js';
+import {OpenSeaPort, orderFromJSON} from 'opensea-js';
 import {OpenSeaAsset, OrderSide, Order} from 'opensea-js/lib/types';
 import Page from '../../../containers/page';
 import {HeadingXLarge, ParagraphLarge} from 'baseui/typography';
@@ -24,12 +19,15 @@ import {Spinner} from 'baseui/spinner';
 import {useStyletron} from 'baseui';
 import {Block} from 'baseui/block';
 import {Button} from 'baseui/button';
-import {getPriceLabel, truncate} from '../../../helpers/utilities';
 import Context from '../../../context';
 import dynamic from 'next/dynamic';
-
-// OpenSea override
-import {orderToJSON, orderFromJSON} from '../../../helpers/openseaUtils';
+import {
+  getPriceLabel,
+  truncate,
+  getOSNetwork,
+  getInfuraNetwork,
+} from '../../../helpers/utilities';
+import {getOSAssetOrder} from '../../../helpers/openseaUtils';
 
 const ReactViewer = dynamic(() => import('react-viewer'), {ssr: false});
 
@@ -43,54 +41,34 @@ interface GalleryItemDetailsProps extends SizeMeProps {
 
 export async function getServerSideProps({params}) {
   const {tokenAddress, tokenId} = params;
-  const provider = new Web3.default.providers.HttpProvider(
-    'https://mainnet.infura.io',
-  );
+  const infuraNetwork = getInfuraNetwork();
+  const provider = new Web3.default.providers.HttpProvider(infuraNetwork);
 
   const seaport = new OpenSeaPort(provider, {
-    networkName: Network.Main,
+    networkName: getOSNetwork(),
     apiKey: process.env.OPEN_SEA_API_KEY,
   });
 
-  // Method 1: original getAsset
+  // original getAsset
   const assetResponse: OpenSeaAsset = await seaport.api.getAsset({
     tokenAddress,
     tokenId,
   });
   const asset = JSON.parse(JSON.stringify(assetResponse));
 
-  // Method 2: using Fetch
-  const fetchOrder = await fetch(
-    `https://api.opensea.io/wyvern/v1/orders/?asset_contract_address=${tokenAddress}&limit=1&side=${OrderSide.Sell}&token_id=${tokenId}`,
-    {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'X-API-KEY': process.env.NEXT_PUBLIC_OPEN_SEA_API_KEY,
-      },
-    },
-  )
-    .then((response) => response.json())
-    .then((json) => json.orders[0]);
-
-  // Method 3: Using getOrder
-  const orderResponse: Order = await seaport.api.getOrder({
-    side: OrderSide.Sell,
-    asset_contract_address: params.tokenAddress,
-    token_id: params.tokenId,
+  // using OS API and parse thru orderFromJSON to get valid order obj
+  const fetchOrder = await getOSAssetOrder({
+    tokenAddress,
+    tokenId,
+    orderSide: OrderSide.Sell,
   });
-  // without parsing the order doesn't go through
-  const getOrder = orderToJSON(orderResponse);
 
-  return {props: {asset, getOrder, fetchOrder, tokenAddress, tokenId}};
+  return {props: {asset, fetchOrder, tokenAddress, tokenId}};
 }
 
 function GalleryItemDetails({
   asset,
   fetchOrder,
-  getOrder,
-  // tokenAddress,
-  // tokenId,
   size,
 }: GalleryItemDetailsProps) {
   const [css] = useStyletron();
@@ -114,7 +92,7 @@ function GalleryItemDetails({
       console.log({provider});
       setSeaport(
         new OpenSeaPort(provider, {
-          networkName: Network.Main,
+          networkName: getOSNetwork(),
           apiKey: process.env.OPEN_SEA_API,
         }),
       );
@@ -131,20 +109,7 @@ function GalleryItemDetails({
           setCreatingOrder(true);
           setShowTransactionModal(true);
 
-          console.log('pre-parsed', {
-            sellOrder, // Method 1: order obj from getAsset
-            fetchOrder, // Method 2: fetchOrder
-            getOrder, // Method 3: getOrder
-          });
-
-          const parsedFetchOrder = _orderFromJSON(fetchOrder);
-          // const parsedGetOrder = orderFromJSON(getOrder);
-
-          console.log('parsed', {
-            sellOrder, // Method 1: order obj from getAsset
-            // parsedGetOrder, // Method 2: parsed fetchOrder
-            parsedFetchOrder, // Method 3: parsed getOrder
-          });
+          const parsedFetchOrder = orderFromJSON(fetchOrder);
 
           await seaport.fulfillOrder({
             order: parsedFetchOrder, // change the order here to see diff results
