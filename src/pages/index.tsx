@@ -22,6 +22,7 @@ export async function getServerSideProps () {
 
   const seaport = new OpenSeaPort(provider, {
     networkName: Network.Main,
+    apiKey: process.env.OPEN_SEA_API_KEY,
   })
 
   const response: {

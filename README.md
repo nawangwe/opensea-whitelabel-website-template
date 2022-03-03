@@ -40,6 +40,7 @@ NEXT_PUBLIC_GITHUB="<YOUR GITHUB LINK>"
 # server side variables
 OPEN_SEA_WALLET_ADDRESS="<YOUR OPENSEA WALLET ADDRESS>"
 OPEN_SEA_COLLECTION_SLUG="<OPENSEA NFT COLLECTION SLUG>"
+OPEN_SEA_API_KEY="<OPENSEA API KEY>"
 ```
 
 - If you don't have yarn installed, [install yarn](https://classic.yarnpkg.com/en/docs/install).
