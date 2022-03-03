@@ -1,109 +1,174 @@
-import * as React from 'react'
-import {Grid, Cell, BEHAVIOR} from 'baseui/layout-grid'
-import {SizeMeProps, withSize} from 'react-sizeme'
-import * as Web3 from 'web3'
-import {OpenSeaPort, Network} from 'opensea-js'
-import {OpenSeaAsset} from 'opensea-js/lib/types'
-import Page from '../../../containers/page'
-import {HeadingXLarge, ParagraphLarge} from 'baseui/typography'
-import {ListItem, ListItemLabel} from 'baseui/list'
+import * as React from 'react';
+import {Grid, Cell, BEHAVIOR} from 'baseui/layout-grid';
+import {SizeMeProps, withSize} from 'react-sizeme';
+import * as Web3 from 'web3';
+import {
+  OpenSeaPort,
+  Network,
+  orderToJSON as _orderToJSON,
+  orderFromJSON as _orderFromJSON,
+} from 'opensea-js';
+import {OpenSeaAsset, OrderSide, Order} from 'opensea-js/lib/types';
+import Page from '../../../containers/page';
+import {HeadingXLarge, ParagraphLarge} from 'baseui/typography';
+import {ListItem, ListItemLabel} from 'baseui/list';
 import {
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
   ModalButton,
-} from 'baseui/modal'
-import {Tag, VARIANT} from 'baseui/tag'
-import {Spinner} from 'baseui/spinner'
-import {useStyletron} from 'baseui'
-import {Block} from 'baseui/block'
-import {Button} from 'baseui/button'
-import {getPriceLabel, truncate} from '../../../helpers/utilities'
-import Context from '../../../context'
-import dynamic from 'next/dynamic'
+} from 'baseui/modal';
+import {Tag, VARIANT} from 'baseui/tag';
+import {Spinner} from 'baseui/spinner';
+import {useStyletron} from 'baseui';
+import {Block} from 'baseui/block';
+import {Button} from 'baseui/button';
+import {getPriceLabel, truncate} from '../../../helpers/utilities';
+import Context from '../../../context';
+import dynamic from 'next/dynamic';
 
-const ReactViewer = dynamic(() => import('react-viewer'), {ssr: false})
+// OpenSea override
+import {orderToJSON, orderFromJSON} from '../../../helpers/openseaUtils';
+
+const ReactViewer = dynamic(() => import('react-viewer'), {ssr: false});
 
 interface GalleryItemDetailsProps extends SizeMeProps {
-  asset: OpenSeaAsset
+  asset?: OpenSeaAsset;
+  getOrder: Order;
+  fetchOrder: any;
+  tokenAddress?: string;
+  tokenId?: string;
 }
 
-export async function getServerSideProps ({params}) {
+export async function getServerSideProps({params}) {
+  const {tokenAddress, tokenId} = params;
   const provider = new Web3.default.providers.HttpProvider(
     'https://mainnet.infura.io',
-  )
+  );
 
   const seaport = new OpenSeaPort(provider, {
     networkName: Network.Main,
     apiKey: process.env.OPEN_SEA_API_KEY,
-  })
+  });
 
-  const response: OpenSeaAsset = await seaport.api.getAsset({
-    tokenAddress: params.tokenAddress,
-    tokenId: params.tokenId,
-  })
+  // Method 1: original getAsset
+  const assetResponse: OpenSeaAsset = await seaport.api.getAsset({
+    tokenAddress,
+    tokenId,
+  });
+  const asset = JSON.parse(JSON.stringify(assetResponse));
 
-  const asset = JSON.parse(JSON.stringify(response))
+  // Method 2: using Fetch
+  const fetchOrder = await fetch(
+    `https://api.opensea.io/wyvern/v1/orders/?asset_contract_address=${tokenAddress}&limit=1&side=${OrderSide.Sell}&token_id=${tokenId}`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'X-API-KEY': process.env.OPEN_SEA_API_KEY,
+      },
+    },
+  )
+    .then((response) => response.json())
+    .then((json) => json.orders[0]);
 
-  return {props: {asset: asset}}
+  // Method 3: Using getOrder
+  const orderResponse: Order = await seaport.api.getOrder({
+    side: OrderSide.Sell,
+    asset_contract_address: params.tokenAddress,
+    token_id: params.tokenId,
+  });
+  // without parsing the order doesn't go through
+  const getOrder = orderToJSON(orderResponse);
+
+  return {props: {asset, getOrder, fetchOrder, tokenAddress, tokenId}};
 }
 
-function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
-  const [css] = useStyletron()
-  const [showTransactionModal, setShowTransactionModal] = React.useState(false)
-  const [creatingOrder, setCreatingOrder] = React.useState(false)
-  const [dialogMessage, setDialogMessage] = React.useState(null)
-  const {addressValue, providerValue, connectedValue} = React.useContext(
-    Context,
-  )
-  const [address] = addressValue
-  const [provider] = providerValue
-  const [connected] = connectedValue
-  const [seaport, setSeaport] = React.useState(null)
-  const [showImageViewer, setShowImageViewer] = React.useState(false)
+function GalleryItemDetails({
+  asset,
+  fetchOrder,
+  getOrder,
+  // tokenAddress,
+  // tokenId,
+  size,
+}: GalleryItemDetailsProps) {
+  const [css] = useStyletron();
+  const [showTransactionModal, setShowTransactionModal] = React.useState(false);
+  const [creatingOrder, setCreatingOrder] = React.useState(false);
+  const [dialogMessage, setDialogMessage] = React.useState(null);
+  const {addressValue, providerValue, connectedValue} =
+    React.useContext(Context);
+  const [address] = addressValue;
+  const [provider] = providerValue;
+  const [connected] = connectedValue;
+  const [seaport, setSeaport] = React.useState(null);
+  const [showImageViewer, setShowImageViewer] = React.useState(false);
 
-  const sellOrder = asset.sellOrders.length > 0 ? asset.sellOrders[0] : null
-  const buyOrder = asset.buyOrders.length > 0 ? asset.buyOrders[0] : null
+  const sellOrder = asset.sellOrders.length > 0 ? asset.sellOrders[0] : null;
+  const buyOrder = asset.buyOrders.length > 0 ? asset.buyOrders[0] : null;
 
   React.useEffect(() => {
     if (provider != null) {
+      console.log('SEAPORT NOT NULL');
+      console.log({provider});
       setSeaport(
         new OpenSeaPort(provider, {
           networkName: Network.Main,
+          apiKey: process.env.OPEN_SEA_API,
         }),
-      )
+      );
     } else {
-      setSeaport(null)
+      console.log('SEAPORT NULL');
+      setSeaport(null);
     }
-  }, [provider])
+  }, [provider]);
 
-  const initiatePurchase = order => {
+  const initiatePurchase = (sellOrder) => {
     const buyAsset = async () => {
       if (asset.owner.address != address) {
         try {
-          setCreatingOrder(true)
-          setShowTransactionModal(true)
-          await seaport.fulfillOrder({order, accountAddress: address})
-          setDialogMessage('Order was a success!')
+          setCreatingOrder(true);
+          setShowTransactionModal(true);
+
+          console.log('pre-parsed', {
+            sellOrder, // Method 1: order obj from getAsset
+            fetchOrder, // Method 2: fetchOrder
+            getOrder, // Method 3: getOrder
+          });
+
+          const parsedFetchOrder = _orderFromJSON(fetchOrder);
+          // const parsedGetOrder = orderFromJSON(getOrder);
+
+          console.log('parsed', {
+            sellOrder, // Method 1: order obj from getAsset
+            // parsedGetOrder, // Method 2: parsed fetchOrder
+            parsedFetchOrder, // Method 3: parsed getOrder
+          });
+
+          await seaport.fulfillOrder({
+            order: parsedFetchOrder, // change the order here to see diff results
+            accountAddress: address,
+          });
+          setDialogMessage('Order was a success!');
         } catch (error) {
-          console.log(error)
-          setDialogMessage(error.message)
+          console.log(error);
+          setDialogMessage(error.message);
         } finally {
-          setCreatingOrder(false)
+          setCreatingOrder(false);
         }
       }
-    }
-    buyAsset()
-  }
+    };
+    buyAsset();
+  };
 
   return (
     <div>
-      <Page pageRoute='gallery'>
+      <Page pageRoute="gallery">
         <ReactViewer
           visible={showImageViewer}
           onClose={() => {
-            setShowImageViewer(false)
+            setShowImageViewer(false);
           }}
           images={[{src: asset.imageUrl.replace('s250', 's600')}]}
           noToolbar={true}
@@ -119,8 +184,8 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
             <ModalFooter>
               <ModalButton
                 onClick={() => {
-                  setShowTransactionModal(false)
-                  setDialogMessage(null)
+                  setShowTransactionModal(false);
+                  setDialogMessage(null);
                 }}
               >
                 Close
@@ -138,7 +203,7 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
             span={6}
             overrides={{
               Cell: {
-                style: _ => ({
+                style: (_) => ({
                   backgroundColor: 'rgba(0, 0, 0, 0.05)',
                   'padding-left': '0px !important',
                   'padding-right': '0px !important',
@@ -148,7 +213,7 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
           >
             <img
               onClick={() => {
-                setShowImageViewer(true)
+                setShowImageViewer(true);
               }}
               style={{maxHeight: '90vh', width: '100%', objectFit: 'contain'}}
               src={asset.imageUrl.replace('s250', 's600')}
@@ -175,7 +240,7 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
               <ListItem
                 overrides={{Content: {style: {paddingLeft: 0, marginLeft: 0}}}}
               >
-                <ListItemLabel description='Collection'>
+                <ListItemLabel description="Collection">
                   {asset.collection.name}
                 </ListItemLabel>
               </ListItem>
@@ -186,7 +251,7 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
                     Content: {style: {paddingLeft: 0, marginLeft: 0}},
                   }}
                 >
-                  <ListItemLabel description='Last Buyer'>
+                  <ListItemLabel description="Last Buyer">
                     {asset.lastSale.transaction.fromAccount.user
                       ? asset.lastSale.transaction.fromAccount.user.username
                       : truncate(
@@ -203,7 +268,7 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
                     Content: {style: {paddingLeft: 0, marginLeft: 0}},
                   }}
                 >
-                  <ListItemLabel description='Price'>
+                  <ListItemLabel description="Price">
                     {getPriceLabel(asset.sellOrders[0])}
                   </ListItemLabel>
                 </ListItem>
@@ -213,18 +278,21 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
             {(() => {
               if (connected && asset.lastSale) {
                 if (
-                  asset.lastSale.transaction.fromAccount.address.toLowerCase() === address.toLowerCase() || 
-                  (sellOrder && sellOrder.makerAccount.address.toLowerCase() === address.toLowerCase())
+                  asset.lastSale.transaction.fromAccount.address.toLowerCase() ===
+                    address.toLowerCase() ||
+                  (sellOrder &&
+                    sellOrder.makerAccount.address.toLowerCase() ===
+                      address.toLowerCase())
                 ) {
                   return (
                     <Tag
                       closeable={false}
                       variant={VARIANT.outlined}
-                      kind='positive'
+                      kind="positive"
                     >
                       You own this item
                     </Tag>
-                  )
+                  );
                 }
               }
             })()}
@@ -238,19 +306,19 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
                         address.toLowerCase()) ||
                     sellOrder.makerAccount === address
                   ) {
-                    return <div />
+                    return <div />;
                   } else {
                     return (
                       <Button
                         disabled={asset.owner.address == address}
                         onClick={() => {
-                          initiatePurchase(sellOrder)
+                          initiatePurchase(sellOrder);
                         }}
                       >{`Buy for ${getPriceLabel(sellOrder)}`}</Button>
-                    )
+                    );
                   }
                 } else {
-                  return <Button kind='secondary'>Connect Wallet</Button>
+                  return <Button kind="secondary">Connect Wallet</Button>;
                 }
               }
             })()}
@@ -258,6 +326,6 @@ function GalleryItemDetails ({asset, size}: GalleryItemDetailsProps) {
         </Grid>
       </Page>
     </div>
-  )
+  );
 }
-export default withSize()(GalleryItemDetails)
+export default withSize()(GalleryItemDetails);
