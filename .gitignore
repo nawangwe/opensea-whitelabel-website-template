@@ -3,6 +3,3 @@ node_modules
 yarn-error.log
 tmp
 .env.local
-
-# NextJS config
-next.config.js
