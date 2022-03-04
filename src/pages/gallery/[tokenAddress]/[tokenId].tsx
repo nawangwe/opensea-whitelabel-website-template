@@ -56,12 +56,14 @@ export async function getServerSideProps({params}) {
   });
   const asset = JSON.parse(JSON.stringify(assetResponse));
 
-  // using OS API and parse thru orderFromJSON to get valid order obj
-  const fetchOrder = await getOSAssetOrder({
+  // using OS API and parse thru orderFromJSON to get valid order obj, this is temporary as the opensea sdk is not working as expected
+  let fetchOrder = await getOSAssetOrder({
     tokenAddress,
     tokenId,
     orderSide: OrderSide.Sell,
   });
+
+  if (!fetchOrder) fetchOrder = {}
 
   return {props: {asset, fetchOrder, tokenAddress, tokenId}};
 }
