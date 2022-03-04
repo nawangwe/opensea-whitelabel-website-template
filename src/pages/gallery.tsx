@@ -35,6 +35,7 @@ export async function getServerSideProps() {
     estimatedCount: number;
   } = await seaport.api.getAssets({
     collection_slug: process.env.OPEN_SEA_COLLECTION_SLUG,
+    include_orders: true,
   } as any);
 
   const assets = JSON.parse(JSON.stringify(response)).assets;

@@ -31,6 +31,7 @@ export async function getServerSideProps() {
     await seaport.api
       .getAssets({
         collection_slug: process.env.OPEN_SEA_COLLECTION_SLUG,
+        include_orders: true,
       } as any)
       .then((apiResponse: {assets: OpenSeaAsset[]; estimatedCount: number}) => {
         console.log(apiResponse);
