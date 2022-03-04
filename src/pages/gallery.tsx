@@ -1,17 +1,18 @@
-import * as React from 'react'
-import StackGrid from 'react-stack-grid'
-import {Button} from 'baseui/button'
-import {ButtonGroup, MODE} from 'baseui/button-group'
-import {SizeMeProps, withSize} from 'react-sizeme'
+import * as React from 'react';
+import StackGrid from 'react-stack-grid';
+import {Button} from 'baseui/button';
+import {ButtonGroup, MODE} from 'baseui/button-group';
+import {SizeMeProps, withSize} from 'react-sizeme';
 
-import * as Web3 from 'web3'
-import {OpenSeaPort, Network} from 'opensea-js'
-import {OpenSeaAsset} from 'opensea-js/lib/types'
-import Page from '../containers/page'
-import NFTCard from '../components/nftcard'
+import * as Web3 from 'web3';
+import {OpenSeaPort} from 'opensea-js';
+import {OpenSeaAsset} from 'opensea-js/lib/types';
+import Page from '../containers/page';
+import NFTCard from '../components/nftcard';
+import {getOSNetwork, getInfuraNetwork} from '../helpers/utilities';
 
 interface GalleryProps extends SizeMeProps {
-  assets: OpenSeaAsset[]
+  assets: OpenSeaAsset[];
 }
 
 enum LISTINGMODE {
@@ -20,49 +21,47 @@ enum LISTINGMODE {
   SOLD = 2,
 }
 
-export async function getServerSideProps () {
-  const provider = new Web3.default.providers.HttpProvider(
-    'https://mainnet.infura.io',
-  )
+export async function getServerSideProps() {
+  const infuraNetwork = getInfuraNetwork();
+  const provider = new Web3.default.providers.HttpProvider(infuraNetwork);
 
   const seaport = new OpenSeaPort(provider, {
-    networkName: Network.Main,
+    networkName: getOSNetwork(),
     apiKey: process.env.OPEN_SEA_API_KEY,
-  })
+  });
 
   const response: {
-    assets: OpenSeaAsset[]
-    estimatedCount: number
+    assets: OpenSeaAsset[];
+    estimatedCount: number;
   } = await seaport.api.getAssets({
     collection_slug: process.env.OPEN_SEA_COLLECTION_SLUG,
-  } as any)
+  } as any);
 
-  const assets = JSON.parse(JSON.stringify(response)).assets
+  const assets = JSON.parse(JSON.stringify(response)).assets;
 
   // sort items not on sale to bottom
   assets.sort(function (a, b) {
-    if (a.sellOrders != null) return -1
-    else if (a.sellOrders === null) return 1
-  })
+    if (a.sellOrders != null) return -1;
+    else if (a.sellOrders === null) return 1;
+  });
 
-  return {props: {assets: assets}}
+  return {props: {assets: assets}};
 }
 
-function Gallery ({assets, size}: GalleryProps) {
-  const [showSellOrders, setShowSellOrders] = React.useState(false)
-  const [selectedListingMode, setSelectedListingMode] = React.useState<
-    LISTINGMODE
-  >(0)
+function Gallery({assets, size}: GalleryProps) {
+  const [showSellOrders, setShowSellOrders] = React.useState(false);
+  const [selectedListingMode, setSelectedListingMode] =
+    React.useState<LISTINGMODE>(0);
 
   return (
     <div>
-      <Page pageRoute='gallery'>
+      <Page pageRoute="gallery">
         <div>
           <ButtonGroup
             mode={MODE.radio}
             selected={selectedListingMode}
             onClick={(_event, index) => {
-              setSelectedListingMode(index)
+              setSelectedListingMode(index);
             }}
             overrides={{Root: {style: {justifyContent: 'flex-end'}}}}
           >
@@ -79,27 +78,27 @@ function Gallery ({assets, size}: GalleryProps) {
           monitorImagesLoaded={true}
         >
           {assets
-            .filter(asset => {
+            .filter((asset) => {
               if (selectedListingMode === LISTINGMODE.ALL) {
-                return true
+                return true;
               } else if (selectedListingMode === LISTINGMODE.BUY) {
-                if (asset.sellOrders === null) return false
-                else return true
+                if (asset.sellOrders === null) return false;
+                else return true;
               } else if (selectedListingMode === LISTINGMODE.SOLD) {
-                if (asset.sellOrders === null) return true
-                else return false
+                if (asset.sellOrders === null) return true;
+                else return false;
               }
             })
-            .map(asset => {
+            .map((asset) => {
               return (
                 <div key={asset.tokenId}>
                   <NFTCard asset={asset} />
                 </div>
-              )
+              );
             })}
         </StackGrid>
       </Page>
     </div>
-  )
+  );
 }
-export default withSize()(Gallery)
+export default withSize()(Gallery);
